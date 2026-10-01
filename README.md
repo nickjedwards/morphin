@@ -28,7 +28,6 @@ A dynamic-island shell for [Hyprland](https://hypr.land), built on [Quickshell](
 | `hyprsunset` | Night Light |
 | `quickshell` (0.3.1+) | the runtime |
 | `qt6-declarative`, `qt6-imageformats` | QML and effects (blur); webp and other image formats |
-| `ttf-inter` | UI font (Inter and Inter Display) |
 | `ttf-nerd-fonts-symbols` | icons (Symbols Nerd Font) |
 | `networkmanager` | Wi-Fi page |
 | `bluez`, `bluez-utils` | Bluetooth page |
@@ -46,7 +45,7 @@ On Arch:
 paru -S quickshell \
     hyprland hyprpaper hyprsunset \
     qt6-declarative qt6-imageformats \
-    ttf-inter ttf-nerd-fonts-symbols \
+    ttf-nerd-fonts-symbols \
     networkmanager \
     bluez bluez-utils \
     pipewire wireplumber \
