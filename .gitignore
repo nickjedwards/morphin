@@ -1,0 +1,4 @@
+.check/
+dist/arch/*/
+dist/arch/*.pkg.tar.*
+dist/arch/*.tar.*
