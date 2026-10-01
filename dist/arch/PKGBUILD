@@ -35,7 +35,7 @@ optdepends=(
 makedepends=('git' 'make')
 provides=("${_name}")
 conflicts=("${_name}")
-source=("${_name}::git+${url}.git")
+source=("${_name}::git+${url}.git#branch=main")
 sha256sums=('SKIP')
 
 pkgver() {
