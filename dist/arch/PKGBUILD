@@ -2,48 +2,47 @@
 #
 # Builds from the latest commit.
 
-_name=morphin
-pkgname=${_name}-git
+_pkgname=morphin
+pkgname=${_pkgname}-git
 pkgver=r0
 pkgrel=1
 pkgdesc="A morphing-island shell for Hyprland, it's morphin' time!"
-arch=('any')
-url="https://github.com/nickjedwards/${_name}"
+arch=("any")
+url="https://github.com/nickjedwards/${_pkgname}"
 license=('GPL-3.0-only')
 depends=(
-    'quickshell'
+    'bluez'
+    'brightnessctl'
+    'networkmanager'
+    'pipewire'
     'qt6-declarative'
     'qt6-imageformats'
+    'quickshell'
     'ttf-nerd-fonts-symbols'
-    'networkmanager'
-    'bluez'
-    'pipewire'
-    'wireplumber'
     'upower'
-    'brightnessctl'
+    'wireplumber'
 )
 optdepends=(
-    'hyprland: workspaces, focus, game mode, monitor settings'
-    'hyprpaper: draws the wallpaper (the shell draws it itself otherwise)'
-    'hyprsunset: night light'
-    'power-profiles-daemon: power mode'
-    'cava: audio pulse around the album art'
-    'ddcutil: brightness for external monitors'
-    'playerctl: play/pause for players that report no controls'
-    'curl: colours from cover art served over https'
+    'cava'
+    'curl'
+    'hyprland'
+    'hyprpaper'
+    'hyprsunset'
+    'playerctl'
+    'power-profiles-daemon'
 )
-makedepends=('git' 'make')
-provides=("${_name}")
-conflicts=("${_name}")
-source=("${_name}::git+${url}.git#branch=main")
+makedepends=('git')
+provides=("${_pkgname}")
+conflicts=("${_pkgname}")
+source=("${_pkgname}::git+${url}.git#branch=main")
 sha256sums=('SKIP')
 
 pkgver() {
-    cd "${_name}"
+    cd "$srcdir/${_pkgname}"
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
 }
 
 package() {
-    cd "${_name}"
-    make DESTDIR="${pkgdir}" PREFIX=/usr NAME="${_name}" install
+    cd "$srcdir/${_pkgname}"
+    make DESTDIR="${pkgdir}" PREFIX=/usr NAME="${_pkgname}" install
 }

@@ -1,5 +1,5 @@
 [Unit]
-Description=@NAME@, a dynamic-island shell for Hyprland
+Description=@NAME@, a morphing-island shell for Hyprland. It's morphin' time!
 Documentation=file://@DOCDIR@/README.md
 PartOf=graphical-session.target
 After=graphical-session.target

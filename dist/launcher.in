@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+
 # @NAME@: Quickshell pointed at the installed shell.
 #
 #   @NAME@                           run it in the foreground
@@ -6,11 +7,6 @@
 #   @NAME@ ipc call launcher toggle  talk to the running one
 #   @NAME@ ipc show                  list everything it answers to
 #   @NAME@ kill | list | log         ditto
-#
-# The shell is named by path, so nothing has to be registered under
-# ~/.config/quickshell. The path goes on the command line rather than in
-# QS_CONFIG_PATH: every app the shell launches would inherit that variable,
-# and `qs -c` run from any of them would then refuse to start.
 #
 # PKGDATADIR and QS are filled in by `make install`.
 set -eu

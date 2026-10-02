@@ -1,12 +1,9 @@
 # Morphin
 
-It's morphin' time!
-
-A morphing-island shell for [Hyprland](https://hypr.land), built on [Quickshell](https://quickshell.org).
+A morphing-island shell for [Hyprland](https://hypr.land). It's morphin' time!
 
 ## Contents
 
-- [Prerequisites](#prerequisites)
 - [Install](#install)
 - [Start it with Hyprland](#start-it-with-hyprland)
 - [Keybinds](#keybinds)
@@ -14,48 +11,6 @@ A morphing-island shell for [Hyprland](https://hypr.land), built on [Quickshell]
 - [Settings](#settings)
 - [IPC reference](#ipc-reference)
 - [Development](#development)
-
----
-
-## Prerequisites
-
-**Required**
-
-| Package | Why |
-|---|---|
-| `hyprland` (0.56+, Lua config) | compositor; the shell uses Hyprland IPC and `hyprctl eval` |
-| `hyprpaper` | draws the wallpaper (morphin falls back to drawing it itself) |
-| `hyprsunset` | Night Light |
-| `quickshell` (0.3.1+) | the runtime |
-| `qt6-declarative`, `qt6-imageformats` | QML and effects (blur); webp and other image formats |
-| `ttf-nerd-fonts-symbols` | icons (Symbols Nerd Font) |
-| `networkmanager` | Wi-Fi page |
-| `bluez`, `bluez-utils` | Bluetooth page |
-| `pipewire`, `wireplumber` | Audio control and page, and volume |
-| `upower` | Battery ring |
-| `brightnessctl` | built-in display brightness |
-| `power-profiles-daemon` | Power Mode (Power Saver / Balanced / Performance) |
-| any MPRIS player | the media card and album art |
-| `cava` | the audio pulse around the album art |
-| `curl` | colour sampling for players that serve art over https (Spotify) |
-
-On Arch:
-
-```sh
-paru -S quickshell \
-    hyprland hyprpaper hyprsunset \
-    qt6-declarative qt6-imageformats \
-    ttf-nerd-fonts-symbols \
-    networkmanager \
-    bluez bluez-utils \
-    pipewire wireplumber \
-    upower power-profiles-daemon \
-    brightnessctl \
-    cava \
-    curl
-```
-
----
 
 ## Install
 
@@ -115,7 +70,7 @@ morphin kill; morphin -d
 A set to start from, in Hyprland's Lua syntax:
 
 ```lua
-local mainMod  = "SUPER" -- Sets "Windows" key as main modifier
+local mainMod  = "SUPER"
 local morphinTime = "morphin ipc call"
 
 local morph = function(keys, cmd, opts)
