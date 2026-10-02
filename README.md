@@ -2,7 +2,7 @@
 
 It's morphin' time!
 
-A dynamic-island shell for [Hyprland](https://hypr.land), built on [Quickshell](https://quickshell.org).
+A morphing-island shell for [Hyprland](https://hypr.land), built on [Quickshell](https://quickshell.org).
 
 ## Contents
 
@@ -117,28 +117,31 @@ A set to start from, in Hyprland's Lua syntax:
 ```lua
 local mainMod  = "SUPER" -- Sets "Windows" key as main modifier
 local morphinTime = "morphin ipc call"
-local bind = function(keys, cmd, opts) hl.bind(keys, hl.dsp.exec_cmd(morphinTime .. " " .. cmd), opts) end
 
-bind(mainMod .. " + Space",  "launcher toggle")             -- app launcher
-bind(mainMod .. " + C",      "island toggle controlcenter") -- control center
-bind(mainMod .. " + W",      "wallpaper toggle")            -- wallpaper picker
-bind(mainMod .. " + T",      "theme toggle")                -- theme picker
-bind(mainMod .. " + comma",  "settings toggle")             -- settings window
-bind(mainMod .. " + L",      "lock lock")                   -- lock screen
-bind(mainMod .. " + Escape", "power toggle")                -- power menu
-bind(mainMod .. " + G",      "gamemode toggle")             -- Game mode
+local morph = function(keys, cmd, opts)
+    hl.bind(keys, hl.dsp.exec_cmd(morphinTime .. " " .. cmd), opts)
+end
+
+morph(mainMod .. " + Space",  "launcher toggle")             -- app launcher
+morph(mainMod .. " + C",      "island toggle controlcenter") -- control center
+morph(mainMod .. " + W",      "wallpaper toggle")            -- wallpaper picker
+morph(mainMod .. " + T",      "theme toggle")                -- theme picker
+morph(mainMod .. " + comma",  "settings toggle")             -- settings window
+morph(mainMod .. " + L",      "lock lock")                   -- lock screen
+morph(mainMod .. " + Escape", "power toggle")                -- power menu
+morph(mainMod .. " + G",      "gamemode toggle")             -- Game mode
 
 -- Hardware keys: these also show the level in the island.
 local held = { locked = true, repeating = true }
-bind("XF86AudioRaiseVolume",        "volume up",       held)
-bind("XF86AudioLowerVolume",        "volume down",     held)
-bind("XF86AudioMute",               "volume mute",     held)
-bind("XF86MonBrightnessUp",         "brightness up",   held)
-bind("XF86MonBrightnessDown",       "brightness down", held)
-bind("XF86AudioPlay",               "media playPause", { locked = true })
-bind("XF86AudioNext",               "media next",      { locked = true })
-bind("XF86AudioPrev",               "media previous",  { locked = true })
-bind(mainMod .. " + XF86AudioPlay", "media cycle") -- switch player
+morph("XF86AudioRaiseVolume",        "volume up",       held)
+morph("XF86AudioLowerVolume",        "volume down",     held)
+morph("XF86AudioMute",               "volume mute",     held)
+morph("XF86MonBrightnessUp",         "brightness up",   held)
+morph("XF86MonBrightnessDown",       "brightness down", held)
+morph("XF86AudioPlay",               "media playPause", { locked = true })
+morph("XF86AudioNext",               "media next",      { locked = true })
+morph("XF86AudioPrev",               "media previous",  { locked = true })
+morph(mainMod .. " + XF86AudioPlay", "media cycle") -- switch player
 ```
 
 ---

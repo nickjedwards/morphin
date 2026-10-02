@@ -130,8 +130,5 @@ Canvas {
         const col = pulse.color;
         ctx.fillStyle = Qt.rgba(col.r, col.g, col.b, 0.55);
         ctx.fill();
-        ctx.lineWidth = Math.max(1, Theme.u(1));
-        ctx.strokeStyle = Qt.rgba(col.r, col.g, col.b, 0.9);
-        ctx.stroke();
     }
 }

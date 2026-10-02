@@ -187,6 +187,33 @@ Loader {
                     onChanged: v => Config.clock.highlightWeekends = v
                 }
             }
+            Section {
+                width: parent.width
+                title: "Weather"
+                SettingRow {
+                    label: "Forecast under the week"
+                    description: Weather.error !== "" ? Weather.error : Weather.ready ? `Showing ${Weather.place}, from Open-Meteo.` : "Under each day when you hover the clock; a week ahead."
+                    value: Config.weather.enabled
+                    onChanged: v => Config.weather.enabled = v
+                }
+                SettingRow {
+                    label: "Location"
+                    description: "A city name. Leave empty to use your time zone's city."
+                    kind: "text"
+                    value: Config.weather.location
+                    onChanged: v => Config.weather.location = v
+                }
+                SettingRow {
+                    label: "Temperature"
+                    kind: "choice"
+                    options: [
+                        { label: "°C", value: "c" },
+                        { label: "°F", value: "f" }
+                    ]
+                    value: Config.weather.unit
+                    onChanged: v => Config.weather.unit = v
+                }
+            }
         }
     }
 

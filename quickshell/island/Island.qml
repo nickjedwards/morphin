@@ -534,12 +534,14 @@ PanelWindow {
             PillView {
                 id: peekView
                 mode: "peek"
+                // Taller when there's a forecast to show under the week.
+                readonly property bool weather: Weather.enabled && Weather.ready
                 fixedWidth: Theme.u(198)
-                fixedHeight: Theme.u(88)
+                fixedHeight: Theme.u(88) + (weather ? Theme.u(29) : 0)
                 content: Component {
                     Item {
-                        implicitWidth: Theme.u(198)
-                        implicitHeight: Theme.u(88)
+                        implicitWidth: peekView.fixedWidth
+                        implicitHeight: peekView.fixedHeight
 
                         // Hover hint: the whole peek is a button into the month.
                         Rectangle {
@@ -552,8 +554,20 @@ PanelWindow {
                         }
 
                         CalendarStrip {
+                            id: weekStrip
                             anchors.horizontalCenter: parent.horizontalCenter
                             y: Theme.u(41)
+                            now: clock.date
+                            contentBottom: peekView.weather ? weatherStrip.y - y + weatherStrip.inkBottom : -1
+                        }
+
+                        WeatherStrip {
+                            id: weatherStrip
+                            visible: peekView.weather
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: weekStrip.y + weekStrip.height + Theme.u(1)
+                            width: weekStrip.width
+                            strip: weekStrip
                             now: clock.date
                         }
                     }

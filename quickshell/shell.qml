@@ -25,7 +25,7 @@ ShellRoot {
 
     // Singletons load lazily; the notification server and polkit agent have
     // to exist up front to claim their bus names.
-    Component.onCompleted: [Notifs.focus, Polkit.registered, NightLight.available]
+    Component.onCompleted: [Notifs.focus, Polkit.registered, NightLight.available, Weather.enabled]
 
     // The polkit prompt lives in the island. Closing the island any way at
     // all cancels the request, so nothing is left waiting on a hidden prompt.

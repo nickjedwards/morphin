@@ -9,6 +9,10 @@ Item {
 
     property date now
     property int offset: 0
+    // When something sits under the strip as part of each day (the weather),
+    // how far below the strip's top its content ends: today's highlight
+    // stretches down to take it in. Negative: nothing there.
+    property real contentBottom: -1
 
     // Scrolling is held to a 30-day span around today — two weeks back,
     // two weeks and a day ahead — with all seven visible days kept inside it.
@@ -27,6 +31,10 @@ Item {
 
     implicitWidth: step * 7 + centerGap * 2
     implicitHeight: Theme.u(34)
+
+    function scroll(days: int): void {
+        root.offset = Math.max(root.minOffset, Math.min(root.maxOffset, root.offset + days));
+    }
 
     function sameDay(a: date, b: date): bool {
         return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -75,7 +83,7 @@ Item {
                 readonly property real inkLeft: Math.min(nameLabel.x + nameInk.tightBoundingRect.x, numberLabel.x + numberInk.tightBoundingRect.x)
                 readonly property real inkRight: Math.max(nameLabel.x + nameInk.tightBoundingRect.x + nameInk.tightBoundingRect.width, numberLabel.x + numberInk.tightBoundingRect.x + numberInk.tightBoundingRect.width)
                 readonly property real inkTop: nameLabel.y + nameLabel.baselineOffset + nameInk.tightBoundingRect.y
-                readonly property real inkBottom: numberLabel.y + numberLabel.baselineOffset + numberInk.tightBoundingRect.y + numberInk.tightBoundingRect.height
+                readonly property real inkBottom: root.contentBottom >= 0 ? root.contentBottom : numberLabel.y + numberLabel.baselineOffset + numberInk.tightBoundingRect.y + numberInk.tightBoundingRect.height
 
                 x: Math.round(inkLeft - pad)
                 y: Math.round(inkTop - pad)
@@ -114,9 +122,6 @@ Item {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.NoButton
-        onWheel: wheel => {
-            const step = wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? -1 : 1;
-            root.offset = Math.max(root.minOffset, Math.min(root.maxOffset, root.offset + step));
-        }
+        onWheel: wheel => root.scroll(wheel.angleDelta.y > 0 || wheel.angleDelta.x > 0 ? -1 : 1)
     }
 }

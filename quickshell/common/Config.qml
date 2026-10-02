@@ -14,6 +14,7 @@ Singleton {
 
     property alias island: adapter.island
     property alias clock: adapter.clock
+    property alias weather: adapter.weather
     property alias appearance: adapter.appearance
     property alias motion: adapter.motion
     property alias launcher: adapter.launcher
@@ -107,6 +108,12 @@ Singleton {
                 property bool showSeconds: false
                 property int weekStart: 0          // 0 = Sunday, 1 = Monday
                 property bool highlightWeekends: true
+            }
+
+            property JsonObject weather: JsonObject {
+                property bool enabled: true
+                property string location: ""       // a city; empty: the time zone's
+                property string unit: "c"          // c | f
             }
 
             property JsonObject appearance: JsonObject {

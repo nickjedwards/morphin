@@ -180,30 +180,24 @@ ClippingRectangle {
         // Progress
         Item {
             id: progress
-            y: Theme.u(82)
+            y: Theme.u(78.5)
             width: parent.width
-            height: Theme.u(4.5)
+            height: Theme.u(11)
 
             readonly property real fraction: Media.length > 0 ? Math.min(1, Media.position / Media.length) : 0
 
-            Rectangle {
+            WaveProgress {
                 anchors.fill: parent
-                radius: height / 2
-                color: Qt.rgba(1, 1, 1, 0.15)
-            }
-            Rectangle {
-                width: parent.width * progress.fraction
-                height: parent.height
-                radius: height / 2
+                fraction: progress.fraction
+                playing: Media.playing
                 color: Media.artColor
                 Behavior on color { ColorAnimation { duration: 600 } }
-                Behavior on width { NumberAnimation { duration: 500 } }
             }
             MouseArea {
                 anchors.fill: parent
-                anchors.margins: -Theme.u(5)
+                anchors.margins: -Theme.u(3)
                 cursorShape: Qt.PointingHandCursor
-                onClicked: mouse => Media.seek((mouse.x - Theme.u(5)) / progress.width)
+                onClicked: mouse => Media.seek((mouse.x - Theme.u(3)) / progress.width)
             }
         }
 
