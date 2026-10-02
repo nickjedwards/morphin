@@ -258,7 +258,7 @@ PanelWindow {
                 anchors.centerIn: parent
                 text: win.timeText
                 size: Theme.u(9)
-                font.weight: Font.DemiBold
+                font.weight: Font.Normal
             }
 
             Loader {
@@ -559,7 +559,13 @@ PanelWindow {
                 text: win.timeText
                 size: t < 0.001 ? Theme.u(10.5) : Theme.u(15.5)
                 scale: shown / size
-                font.weight: Font.DemiBold
+                // Regular at rest, semi-bold as the peek's headline. With a
+                // variable font the weight follows the peek continuously, so
+                // it thickens as it grows and thins as it shrinks; a font
+                // without a weight axis switches halfway, mid-motion, where
+                // the jump is hidden.
+                font.weight: t < 0.5 ? Font.Normal : Font.DemiBold
+                font.variableAxes: ({ "wght": 400 + 200 * t })
                 // Above the peek's hover highlight, which would otherwise
                 // tint it grey.
                 z: 1
