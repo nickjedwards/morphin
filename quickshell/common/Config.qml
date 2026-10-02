@@ -141,6 +141,7 @@ Singleton {
                 property bool popups: true
                 property int popupSeconds: 5
                 property bool silenceInGameMode: true
+                property bool announceChanges: true   // theme and wallpaper changes
             }
 
             property JsonObject controlCenter: JsonObject {

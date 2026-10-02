@@ -129,9 +129,10 @@ Singleton {
     }
 
     function apply(id: string): void {
-        if (root.indexOf(id) < 0)
+        if (root.indexOf(id) < 0 || id === Config.appearance.theme)
             return;
         Config.appearance.theme = id;
         Wallpaper.themeChanged(id);
+        Announce.send("Theme changed", id, "preferences-desktop-theme");
     }
 }

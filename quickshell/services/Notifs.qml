@@ -13,8 +13,9 @@ Singleton {
     property bool focus: AppState.focus ?? false
     onFocusChanged: AppState.focus = focus
 
-    readonly property var list: [...server.trackedNotifications.values].reverse()
-    readonly property int count: server.trackedNotifications.values.length
+    // Transient notifications pop up and go; they never join the list.
+    readonly property var list: [...server.trackedNotifications.values].filter(n => !n.transient).reverse()
+    readonly property int count: list.length
 
     // The list grouped by app, each group newest first, groups ordered by
     // their newest notification.
@@ -42,6 +43,12 @@ Singleton {
         return (notification?.actions ?? []).filter(a => a.identifier !== "default" && a.text !== "");
     }
 
+    // Its popup is over: a transient notification is done with.
+    function finish(notification): void {
+        if (root.isLive(notification) && notification.transient)
+            notification.dismiss();
+    }
+
     function open(notification): void {
         const primary = (notification?.actions ?? []).find(a => a.identifier === "default");
         if (primary)
@@ -63,9 +70,19 @@ Singleton {
         persistenceSupported: true
 
         onNotification: notification => {
-            notification.tracked = true;
             const silenced = root.focus || !Config.notifications.popups || (Config.notifications.silenceInGameMode && Session.gameMode);
-            if (!silenced || notification.urgency === NotificationUrgency.Critical)
+            const show = !silenced || notification.urgency === NotificationUrgency.Critical;
+            // A transient one that isn't shown has no reason to exist.
+            if (notification.transient && !show)
+                return;
+            // The shell's own announcements replace each other, so flicking
+            // through wallpapers doesn't queue one popup per wallpaper.
+            if (notification.transient && notification.appName === Meta.name)
+                for (const n of [...server.trackedNotifications.values])
+                    if (n.transient && n.appName === Meta.name)
+                        n.dismiss();
+            notification.tracked = true;
+            if (show)
                 root.popup(notification);
         }
     }

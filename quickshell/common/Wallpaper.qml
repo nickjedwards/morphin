@@ -114,6 +114,15 @@ Singleton {
     function set(file: string): void {
         if (!file || file === root.resolved)
             return;
+        root.apply(file);
+        Announce.send("Wallpaper changed", root.nameOf(file), file);
+    }
+
+    // The change itself, without announcing it: a theme switching to its own
+    // wallpaper is announced as the theme change it is.
+    function apply(file: string): void {
+        if (!file || file === root.resolved)
+            return;
         const from = root.resolved;
         root.changed(from, file);
         // One command per output: an empty monitor name only reaches one.
@@ -141,7 +150,7 @@ Singleton {
         const remembered = AppState.themeWallpapers[id];
         if (remembered) {
             if (remembered !== root.resolved)
-                root.set(remembered);
+                root.apply(remembered);
             return;
         }
         pendingTheme.restart();
@@ -153,7 +162,7 @@ Singleton {
         interval: 250
         onTriggered: {
             if (root.usingThemeDir && !root.files.includes(root.resolved))
-                root.set(root.files[0]);
+                root.apply(root.files[0]);
         }
     }
 }

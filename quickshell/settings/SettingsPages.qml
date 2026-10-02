@@ -374,6 +374,12 @@ Loader {
                     onChanged: v => Config.notifications.popupSeconds = v
                 }
                 SettingRow {
+                    label: "Announce theme and wallpaper changes"
+                    description: "A brief popup in the island; it isn't kept in the list."
+                    value: Config.notifications.announceChanges
+                    onChanged: v => Config.notifications.announceChanges = v
+                }
+                SettingRow {
                     label: "Silence in Game Mode"
                     description: "Critical notifications still come through."
                     value: Config.notifications.silenceInGameMode

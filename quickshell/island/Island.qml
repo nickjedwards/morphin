@@ -39,7 +39,9 @@ PanelWindow {
     readonly property Notification popup: popupQueue.length > 0 ? popupQueue[0] : null
 
     function nextPopup(): void {
+        const shown = win.popupQueue[0] ?? null;
         win.popupQueue = win.popupQueue.slice(1).filter(n => Notifs.isLive(n));
+        Notifs.finish(shown);
         if (win.popupQueue.length > 0)
             popupTimer.restart();
     }
@@ -172,9 +174,11 @@ PanelWindow {
         function onPopup(notification: Notification): void {
             if (!win.isFocusedScreen)
                 return;
-            const showing = win.popupQueue.length > 0;
-            win.popupQueue = win.popupQueue.filter(n => Notifs.isLive(n) && n !== notification).concat([notification]);
-            if (!showing)
+            // Ones dismissed since (an announcement replaced by a newer one)
+            // drop out; if that leaves this one showing, its time starts now.
+            const waiting = win.popupQueue.filter(n => Notifs.isLive(n) && n !== notification);
+            win.popupQueue = waiting.concat([notification]);
+            if (waiting.length === 0)
                 popupTimer.restart();
         }
         // Dismissed or closed elsewhere while waiting or showing.
@@ -492,6 +496,8 @@ PanelWindow {
                 onClicked: {
                     switch (win.pillMode) {
                     case "notification":
+                        for (const n of win.popupQueue)
+                            Notifs.finish(n);
                         win.popupQueue = [];
                         IslandState.show("controlcenter", win.screenName);
                         break;
