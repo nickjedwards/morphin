@@ -13,7 +13,7 @@ Item {
     property color restColor: Qt.rgba(1, 1, 1, 0.2)
 
     readonly property real stroke: Math.max(2, Theme.u(2))
-    readonly property real wavelength: Theme.u(15)
+    readonly property real wavelength: Theme.u(22)
     readonly property real handleWidth: Math.max(2, Theme.u(2.5))
 
     implicitHeight: Theme.u(11)
@@ -23,7 +23,7 @@ Item {
     Behavior on shown { NumberAnimation { duration: 500 } }
 
     // Wave height: full while playing, flat when paused.
-    property real amplitude: playing ? Theme.u(2.2) : 0
+    property real amplitude: playing ? Theme.u(1.4) : 0
     Behavior on amplitude { Anim { curve: "close" } }
 
     // The wave's travel: one wavelength every 1.6 s, only while it shows.
