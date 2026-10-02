@@ -76,8 +76,17 @@ PanelWindow {
         const half = Math.max(830 / 2 + 14 + 26, 73 / 2 + 14 + ccWidth, 73 / 2 + 14 + 309);
         return Math.min(modelData?.width ?? 2160, Theme.u(half * 2 + 72));
     }
-    // Tall enough for the biggest panel; the mask keeps the rest click-through.
-    implicitHeight: Math.min(modelData?.height ?? 1440, Math.max(Theme.u(420), (controlCenter.item?.implicitHeight ?? 0) + Theme.u(70)))
+    // Tall enough for the biggest panel; the mask keeps the rest
+    // click-through. Worked out from the settings, never from what's open:
+    // resizing a layer surface mid-animation makes the compositor show the
+    // other shapes jump for a frame. The control center is its grid, or a
+    // page (capped at 560) when that's taller, plus its padding.
+    implicitHeight: {
+        const rows = Config.controlCenter.items.reduce((m, it) => Math.max(m, it.y + it.h), 0);
+        const grid = rows * 46 + Math.max(0, rows - 1) * 9;
+        const controlCenter = Math.max(grid, 560) + 22;
+        return Math.min(modelData?.height ?? 1440, Theme.u(Math.max(420, controlCenter + 70)));
+    }
     color: "transparent"
 
     exclusionMode: ExclusionMode.Normal
