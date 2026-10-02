@@ -65,7 +65,9 @@ ClippingRectangle {
         y: root.pulseExtent + root.clearance
         width: Theme.u(80)
         height: width
-        radius: Theme.u(8)
+        // Rounded square, or a full circle; the pulse follows either.
+        radius: (Config.island.artShape ?? "rounded") === "circle" ? width / 2 : Theme.u(8)
+        Behavior on radius { Anim { curve: "hover" } }
         color: "#1c211d"
 
         Icon {

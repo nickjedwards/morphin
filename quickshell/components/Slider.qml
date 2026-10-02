@@ -70,7 +70,7 @@ Item {
         width: slider.inner - ring * 2
         height: width
         radius: width / 2
-        color: Theme.bg
+        color: Theme.accentInk
 
         Icon {
             anchors.fill: parent

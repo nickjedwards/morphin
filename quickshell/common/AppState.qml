@@ -17,6 +17,8 @@ Singleton {
     // Toggles that should survive a restart.
     property alias focus: adapter.focus
     property alias nightLight: adapter.nightLight
+    // app id → { count, last (ms since epoch) }, for ranking the launcher
+    property alias launches: adapter.launches
 
     property bool loaded: false
 
@@ -38,6 +40,7 @@ Singleton {
             property var themeWallpapers: ({})
             property bool focus: false
             property bool nightLight: false
+            property var launches: ({})
         }
     }
 

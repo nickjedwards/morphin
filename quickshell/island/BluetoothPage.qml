@@ -42,6 +42,8 @@ Item {
                 highlighted: modelData.connected
                 action: modelData.connected ? "Disconnect" : "Connect"
                 onActionClicked: Bt.act(modelData)
+                secondary: "Forget"
+                onSecondaryConfirmed: modelData.forget()
             }
         }
 

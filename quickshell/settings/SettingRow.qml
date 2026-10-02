@@ -9,9 +9,11 @@ Item {
 
     property string label
     property string description
-    property string kind: "switch"   // switch | slider | choice | text | color | stepper
+    property string kind: "switch"   // switch | slider | choice | picker | text | color | stepper
     property var value
-    property var options: []         // choice: [{ label, value }]
+    // choice, picker: [{ label, value }]. Picker options may add `colors`
+    // (shown as dots) and `font` (the label is drawn in that family).
+    property var options: []
     property real from: 0
     property real to: 1
     property real step: 0.05
@@ -20,13 +22,27 @@ Item {
 
     signal changed(var value)
 
+    // The row proper; a picker unfolds its list underneath.
+    readonly property real headHeight: Math.max(Theme.u(34), texts.implicitHeight + Theme.u(14))
+    property bool pickerOpen: false
+    property string pickerFilter: ""
+    readonly property var pickerOptions: {
+        const q = pickerFilter.trim().toLowerCase();
+        return q ? options.filter(o => o.label.toLowerCase().includes(q)) : options;
+    }
+    readonly property var currentOption: options.find(o => o.value === value) ?? null
+
     width: parent?.width ?? 0
-    implicitHeight: Math.max(Theme.u(34), texts.implicitHeight + Theme.u(14))
+    implicitHeight: headHeight + (pickerOpen ? pickerArea.height + Theme.u(8) : 0)
+    Behavior on implicitHeight { Anim { curve: "fade" } }
+    clip: true
+
+    onPickerOpenChanged: pickerFilter = ""
 
     Column {
         id: texts
         x: Theme.u(12)
-        anchors.verticalCenter: parent.verticalCenter
+        y: (row.headHeight - height) / 2
         width: parent.width - x - control.width - Theme.u(28)
         spacing: Theme.u(1)
 
@@ -51,7 +67,7 @@ Item {
         id: control
         anchors.right: parent.right
         anchors.rightMargin: Theme.u(12)
-        anchors.verticalCenter: parent.verticalCenter
+        y: (row.headHeight - height) / 2
         width: loader.item?.implicitWidth ?? 0
         height: loader.item?.implicitHeight ?? 0
 
@@ -65,6 +81,8 @@ Item {
                     return sliderControl;
                 case "choice":
                     return choiceControl;
+                case "picker":
+                    return pickerControl;
                 case "text":
                     return textControl;
                 case "color":
@@ -159,6 +177,190 @@ Item {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: row.changed(parent.modelData.value)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    // Picker: a button showing the current choice; the list opens below the
+    // row, with a filter once there are enough options to want one.
+    Component {
+        id: pickerControl
+        Rectangle {
+            implicitWidth: Theme.u(190)
+            implicitHeight: Theme.u(22)
+            radius: height / 2
+            color: pickerMouse.containsMouse || row.pickerOpen ? Theme.surfaceHover : Theme.surface
+
+            Label {
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.u(10)
+                anchors.right: pickerChevron.left
+                anchors.rightMargin: Theme.u(4)
+                anchors.verticalCenter: parent.verticalCenter
+                // A saved value that's no longer on offer is shown as it is.
+                text: row.currentOption?.label ?? String(row.value ?? "")
+                size: Theme.u(8.5)
+                font.weight: Font.Medium
+                color: row.currentOption ? Theme.text : Theme.danger
+            }
+            Icon {
+                id: pickerChevron
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.u(7)
+                anchors.verticalCenter: parent.verticalCenter
+                text: Icons.chevronRight
+                size: Theme.u(10)
+                color: Theme.textDim
+                rotation: row.pickerOpen ? 90 : 0
+                Behavior on rotation { Anim { curve: "fade" } }
+            }
+            MouseArea {
+                id: pickerMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: row.pickerOpen = !row.pickerOpen
+            }
+        }
+    }
+
+    Rectangle {
+        id: pickerArea
+        visible: row.kind === "picker" && (row.pickerOpen || row.implicitHeight > row.headHeight + 1)
+        x: Theme.u(12)
+        y: row.headHeight
+        width: parent.width - Theme.u(24)
+        height: (pickerSearch.visible ? pickerSearch.height + Theme.u(4) : 0) + pickerList.height + Theme.u(8)
+        radius: Theme.u(10)
+        color: Theme.track
+
+        readonly property real rowHeight: Theme.u(24)
+
+        Rectangle {
+            id: pickerSearch
+            visible: row.options.length > 8
+            x: Theme.u(4)
+            y: Theme.u(4)
+            width: parent.width - Theme.u(8)
+            height: Theme.u(22)
+            radius: height / 2
+            color: Theme.surface
+
+            Icon {
+                id: pickerSearchIcon
+                x: Theme.u(8)
+                anchors.verticalCenter: parent.verticalCenter
+                text: Icons.search
+                size: Theme.u(9)
+                color: Theme.textDim
+            }
+            TextInput {
+                id: pickerInput
+                anchors.left: pickerSearchIcon.right
+                anchors.leftMargin: Theme.u(6)
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.u(10)
+                anchors.verticalCenter: parent.verticalCenter
+                color: Theme.text
+                font.family: Theme.font
+                font.pixelSize: Theme.u(8.5)
+                clip: true
+                text: row.pickerFilter
+                onTextChanged: row.pickerFilter = text
+                onVisibleChanged: if (visible && row.pickerOpen) forceActiveFocus()
+                onAccepted: {
+                    if (row.pickerOptions.length > 0) {
+                        row.changed(row.pickerOptions[0].value);
+                        row.pickerOpen = false;
+                    }
+                }
+                Keys.onEscapePressed: row.pickerOpen = false
+
+                Label {
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: !pickerInput.text
+                    text: "Filter…"
+                    size: Theme.u(8.5)
+                    color: Theme.textFaint
+                }
+            }
+        }
+
+        Label {
+            anchors.centerIn: pickerList
+            visible: row.pickerOptions.length === 0
+            text: "Nothing matches"
+            size: Theme.u(8)
+            color: Theme.textFaint
+        }
+
+        ListView {
+            id: pickerList
+            x: Theme.u(4)
+            y: (pickerSearch.visible ? pickerSearch.height + Theme.u(4) : 0) + Theme.u(4)
+            width: parent.width - Theme.u(8)
+            height: Math.max(1, Math.min(6, row.pickerOptions.length)) * pickerArea.rowHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
+            model: row.pickerOpen ? row.pickerOptions : []
+
+            delegate: Rectangle {
+                id: option
+
+                required property var modelData
+                readonly property bool current: modelData.value === row.value
+
+                width: pickerList.width
+                height: pickerArea.rowHeight
+                radius: Theme.u(8)
+                color: optionMouse.containsMouse ? Theme.surface : "transparent"
+
+                Label {
+                    id: optionLabel
+                    x: Theme.u(8)
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - Theme.u(16) - optionTrail.width
+                    text: option.modelData.label
+                    size: Theme.u(8.5)
+                    font.family: option.modelData.font ?? Theme.font
+                    font.weight: option.current ? Font.DemiBold : Font.Normal
+                    color: option.current ? Theme.accent : Theme.text
+                }
+                Row {
+                    id: optionTrail
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.u(8)
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: Theme.u(2)
+
+                    Repeater {
+                        model: option.modelData.colors ?? []
+                        delegate: Rectangle {
+                            required property var modelData
+                            width: Theme.u(7)
+                            height: width
+                            radius: width / 2
+                            color: modelData
+                        }
+                    }
+                    Icon {
+                        visible: option.current
+                        leftPadding: Theme.u(4)
+                        text: Icons.check
+                        size: Theme.u(10)
+                        color: Theme.accent
+                    }
+                }
+                MouseArea {
+                    id: optionMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        row.changed(option.modelData.value);
+                        row.pickerOpen = false;
                     }
                 }
             }

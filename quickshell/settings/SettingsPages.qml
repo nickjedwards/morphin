@@ -103,6 +103,17 @@ Loader {
                     onChanged: v => Config.island.showAlbumArt = v
                 }
                 SettingRow {
+                    label: "Album art shape"
+                    description: "In the media card. The audio pulse follows the shape: a ring round a circle."
+                    kind: "choice"
+                    options: [
+                        { label: "Rounded", value: "rounded" },
+                        { label: "Circle", value: "circle" }
+                    ]
+                    value: Config.island.artShape
+                    onChanged: v => Config.island.artShape = v
+                }
+                SettingRow {
                     label: "Status ring"
                     description: "What the ring around the Wi-Fi bubble tracks."
                     kind: "choice"
@@ -190,8 +201,9 @@ Loader {
                 width: parent.width
                 SettingRow {
                     label: "Theme"
-                    description: "Pick from the island with: ipc call theme toggle"
-                    kind: "text"
+                    description: `Or pick in the island: ${Meta.command} ipc call theme toggle`
+                    kind: "picker"
+                    options: Themes.list.map(t => ({ label: t.id, value: t.id, colors: Themes.resolve(t).colors }))
                     value: Config.appearance.theme
                     onChanged: v => Themes.apply(v)
                 }
@@ -232,7 +244,9 @@ Loader {
                 }
                 SettingRow {
                     label: "Font"
-                    kind: "text"
+                    description: "Used throughout the shell."
+                    kind: "picker"
+                    options: Qt.fontFamilies().filter(f => !/emoji|symbols|icons|nerd font mono/i.test(f)).map(f => ({ label: f, value: f, font: f }))
                     value: Config.appearance.font
                     onChanged: v => Config.appearance.font = v
                 }
@@ -300,6 +314,10 @@ Loader {
                     value: Config.launcher.terminal
                     onChanged: v => Config.launcher.terminal = v
                 }
+            }
+            PillButton {
+                text: "Forget launch history"
+                onClicked: Apps.forget()
             }
         }
     }

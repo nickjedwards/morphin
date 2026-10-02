@@ -33,7 +33,16 @@ PanelWindow {
 
     // Transient pill states, lowest priority first.
     property bool peek: false
-    property Notification popup: null
+    // Popups queue up rather than replacing each other: the one showing,
+    // then the rest in the order they arrived.
+    property var popupQueue: []
+    readonly property Notification popup: popupQueue.length > 0 ? popupQueue[0] : null
+
+    function nextPopup(): void {
+        win.popupQueue = win.popupQueue.slice(1).filter(n => Notifs.isLive(n));
+        if (win.popupQueue.length > 0)
+            popupTimer.restart();
+    }
     property string osdKind: ""
 
     readonly property string pillMode: {
@@ -163,8 +172,19 @@ PanelWindow {
         function onPopup(notification: Notification): void {
             if (!win.isFocusedScreen)
                 return;
-            win.popup = notification;
-            popupTimer.restart();
+            const showing = win.popupQueue.length > 0;
+            win.popupQueue = win.popupQueue.filter(n => Notifs.isLive(n) && n !== notification).concat([notification]);
+            if (!showing)
+                popupTimer.restart();
+        }
+        // Dismissed or closed elsewhere while waiting or showing.
+        function onCountChanged(): void {
+            if (win.popupQueue.some(n => !Notifs.isLive(n))) {
+                const wasShowing = win.popup;
+                win.popupQueue = win.popupQueue.filter(n => Notifs.isLive(n));
+                if (win.popup !== wasShowing && win.popup !== null)
+                    popupTimer.restart();
+            }
         }
     }
     Timer {
@@ -174,7 +194,7 @@ PanelWindow {
             if (pillMouse.containsMouse)
                 restart();
             else
-                win.popup = null;
+                win.nextPopup();
         }
     }
 
@@ -435,7 +455,7 @@ PanelWindow {
             }
 
             expanded: win.pillMode !== "idle"
-            maxRadius: ["notification", "osd", "workspaces"].includes(win.pillMode) ? height / 2 : Theme.u(22)
+            maxRadius: ["notification", "osd", "workspaces"].includes(win.pillMode) ? Math.min(height / 2, Theme.u(26)) : Theme.u(22)
             width: view ? view.targetWidth : hovered ? Theme.u(85) : Theme.u(73)
             height: view ? view.targetHeight : hovered ? Theme.u(30) : stage.base
             x: (stage.width - width) / 2
@@ -472,7 +492,7 @@ PanelWindow {
                 onClicked: {
                     switch (win.pillMode) {
                     case "notification":
-                        win.popup = null;
+                        win.popupQueue = [];
                         IslandState.show("controlcenter", win.screenName);
                         break;
                     case "osd":
@@ -604,6 +624,8 @@ PanelWindow {
                 content: Component {
                     NotifPopup {
                         notification: win.popup
+                        waiting: win.popupQueue.length - 1
+                        onDone: win.nextPopup()
                     }
                 }
             }

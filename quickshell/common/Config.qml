@@ -95,6 +95,7 @@ Singleton {
                 property bool hoverCalendar: true
                 property int hoverDelay: 250
                 property bool showAlbumArt: true
+                property string artShape: "rounded"   // rounded | circle
                 property string ring: "battery"   // battery | volume | none
                 property bool gameModeBar: true
                 property string workspaces: "switch"   // switch | off

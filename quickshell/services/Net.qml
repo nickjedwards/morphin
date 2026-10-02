@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Networking
 import qs.common
 
@@ -122,6 +123,37 @@ Singleton {
 
     function disconnect(): void {
         root.network?.disconnect();
+    }
+
+    // A hidden network never shows up in a scan, so the Networking module
+    // has nothing to connect to; NetworkManager is asked directly.
+    property bool joining: false
+    property string hiddenError: ""
+    signal hiddenJoined
+
+    function joinHidden(ssid: string, password: string): void {
+        root.hiddenError = "";
+        root.joining = true;
+        const args = ["nmcli", "--wait", "30", "device", "wifi", "connect", ssid];
+        if (password !== "")
+            args.push("password", password);
+        args.push("hidden", "yes");
+        nmcli.command = args;
+        nmcli.running = true;
+    }
+
+    Process {
+        id: nmcli
+        stderr: StdioCollector {
+            id: nmcliErrors
+        }
+        onExited: code => {
+            root.joining = false;
+            if (code === 0)
+                root.hiddenJoined();
+            else
+                root.hiddenError = nmcliErrors.text.trim().replace(/^Error:\s*/, "") || "Couldn't join that network";
+        }
     }
 
     Connections {

@@ -13,10 +13,13 @@ Rectangle {
     property bool selected: false
     property string action: ""
     property bool actionPrimary: false
+    // A second, destructive action ("Forget"), asked twice before it runs.
+    property string secondary: ""
     property bool clickable: action === ""
 
     signal clicked
     signal actionClicked
+    signal secondaryConfirmed
 
     implicitHeight: subtitle !== "" ? Theme.u(34) : Theme.u(28)
     radius: Theme.u(11)
@@ -75,12 +78,21 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: Theme.u(8)
         anchors.verticalCenter: parent.verticalCenter
-        width: row.action !== "" ? actionButton.width : row.selected ? Theme.u(12) : 0
+        width: (row.action !== "" ? actionButton.width : row.selected ? Theme.u(12) : 0) + (secondaryButton.visible ? secondaryButton.width + Theme.u(4) : 0)
         height: parent.height
+
+        ConfirmButton {
+            id: secondaryButton
+            visible: row.secondary !== ""
+            anchors.verticalCenter: parent.verticalCenter
+            text: row.secondary
+            onConfirmed: row.secondaryConfirmed()
+        }
 
         PillButton {
             id: actionButton
             visible: row.action !== ""
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             text: row.action
             tinted: !row.actionPrimary

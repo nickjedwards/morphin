@@ -19,12 +19,7 @@ Rectangle {
         id: mouse
         anchors.fill: parent
         hoverEnabled: true
-        onClicked: {
-            const actions = root.notification?.actions ?? [];
-            const primary = actions.find(a => a.identifier === "default");
-            if (primary)
-                primary.invoke();
-        }
+        onClicked: Notifs.open(root.notification)
     }
 
     NotifAvatar {
@@ -63,6 +58,10 @@ Rectangle {
             color: Theme.textDim
             maximumLineCount: 2
             wrapMode: Text.Wrap
+        }
+        NotifActions {
+            topPadding: Theme.u(4)
+            notification: root.notification
         }
     }
 
