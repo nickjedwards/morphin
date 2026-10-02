@@ -73,6 +73,10 @@ Item {
         }
 
         visible: t > 0.001
+        // Fades in leaving the tile and out arriving back at it, so the
+        // card dissolves into the tile rather than sitting over it as a
+        // blank block for the last moments before it disappears.
+        opacity: Math.min(1, Math.max(0, t) / 0.3)
         x: root.pad + lerp(root.source.x, target.x)
         y: root.pad + lerp(root.source.y, target.y)
         width: lerp(root.source.width, target.width)
