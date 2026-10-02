@@ -6,7 +6,7 @@ import qs.services
 // The weather for the days in the calendar strip above: an icon and one
 // temperature under each, in the same columns, fading the same way and
 // scrolling with it. Today shows what it is now; other days their high.
-// The forecast reaches a week ahead — days past that show nothing.
+// It covers three days either side of today; scrolled further, days show none.
 Item {
     id: root
 
@@ -57,9 +57,10 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: Theme.u(15)
                 text: day.weather ? `${Math.round(day.isToday && !isNaN(Weather.current) ? Weather.current : day.weather.max)}°` : ""
-                size: Theme.u(8)
+                // Today's in the accent, like its date and icon above.
+                size: day.isToday ? Theme.u(8.5) : Theme.u(8)
                 font.weight: rel === 0 ? Font.DemiBold : Font.Medium
-                color: day.isToday || rel === 0 ? Theme.text : Theme.textDim
+                color: day.isToday ? Theme.accent : rel === 0 ? Theme.text : Theme.textDim
             }
         }
     }

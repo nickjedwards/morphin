@@ -4,9 +4,10 @@ import QtQuick
 // the matching duration and bezier, so shapes, positions and fades that run
 // together stay in step instead of drifting apart mid-flight.
 //
-//   open   — panels growing: quick start, a soft ~3% settle past the target
+//   open   — panels growing: elastic — a quick start, about 6% past the
+//            target, a small rebound just under it, then rest
 //   close  — panels shrinking: eased in and out, never overshoots
-//   hover  — small nudges: like open, but shorter
+//   hover  — small nudges: the same spring, shorter
 //   fade   — opacity and colour-ish things: plain decelerate
 NumberAnimation {
     property string curve: "open"
@@ -24,7 +25,10 @@ NumberAnimation {
     }
     easing.type: Easing.BezierSpline
     easing.bezierCurve: {
-        const settle = [0.3, 1.3, 0.45, 1, 1, 1];
+        // Three bezier segments joined where the motion turns round, each
+        // join flat so the curve stays smooth: up to 1.06 by 42% of the
+        // time, back to 0.988 by 70%, and home.
+        const settle = [0.15, 0.9, 0.3, 1.06, 0.42, 1.06, 0.52, 1.06, 0.6, 0.988, 0.7, 0.988, 0.8, 0.988, 0.88, 1, 1, 1];
         const decelerate = [0.2, 0, 0, 1, 1, 1];
         switch (curve) {
         case "close":

@@ -93,8 +93,8 @@ Singleton {
     // ── Motion ───────────────────────────────────────────────────────
     // Durations for Anim's curves; the Motion speed setting scales them all.
     readonly property real speed: Math.max(0.1, Config.motion.speed)
-    readonly property int openDuration: Math.round(520 / speed)
+    readonly property int openDuration: Math.round(600 / speed)
     readonly property int closeDuration: Math.round(400 / speed)
-    readonly property int hoverDuration: Math.round(300 / speed)
+    readonly property int hoverDuration: Math.round(360 / speed)
     readonly property int fastDuration: Math.round(200 / speed)
 }

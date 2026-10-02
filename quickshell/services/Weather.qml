@@ -5,9 +5,9 @@ import Quickshell
 import Quickshell.Io
 import qs.common
 
-// A week's forecast, and the two weeks before it, from Open-Meteo (free, no
-// key) — enough to put weather under every day the calendar strip can scroll
-// back to, and seven days ahead. The place is the one
+// Weather for the week around today, from Open-Meteo (free, no key): the
+// last three days as they were, today, and three days ahead — the seven days
+// the calendar strip shows when it opens. The place is the one
 // named in settings or, with none set, the city of the system's time zone —
 // so nothing has to look up where the machine is. It is turned into
 // coordinates once, then the forecast is refreshed every half hour.
@@ -17,7 +17,7 @@ Singleton {
     readonly property bool enabled: Config.weather.enabled
     readonly property string unit: Config.weather.unit === "f" ? "fahrenheit" : "celsius"
 
-    // [{ date, code, max, min }], oldest first: 14 days back, today, 6 ahead.
+    // [{ date, code, max, min }], oldest first: 3 days back, today, 3 ahead.
     property var days: []
     // The same, by "yyyy-mm-dd".
     readonly property var byDate: {
@@ -91,7 +91,7 @@ Singleton {
     function fetch(): void {
         if (!root.enabled || !root.coords)
             return;
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${root.coords.latitude}&longitude=${root.coords.longitude}` + `&current=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&past_days=14&forecast_days=7&temperature_unit=${root.unit}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${root.coords.latitude}&longitude=${root.coords.longitude}` + `&current=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&past_days=3&forecast_days=4&temperature_unit=${root.unit}`;
         root.get(url, data => {
             const d = data?.daily;
             if (!d?.time) {

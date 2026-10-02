@@ -74,7 +74,7 @@ PanelWindow {
         const cols = Config.controlCenter.columns;
         const ccWidth = cols * 46 + (cols - 1) * 9 + 22;
         const half = Math.max(830 / 2 + 14 + 26, 73 / 2 + 14 + ccWidth, 73 / 2 + 14 + 309);
-        return Math.min(modelData?.width ?? 2160, Theme.u(half * 2 + 24));
+        return Math.min(modelData?.width ?? 2160, Theme.u(half * 2 + 72));
     }
     // Tall enough for the biggest panel; the mask keeps the rest click-through.
     implicitHeight: Math.min(modelData?.height ?? 1440, Math.max(Theme.u(420), (controlCenter.item?.implicitHeight ?? 0) + Theme.u(70)))
@@ -444,6 +444,10 @@ PanelWindow {
             id: pill
 
             readonly property bool hovered: pillMouse.containsMouse && win.pillMode === "idle" && !win.anyOpen
+            // In the peek, the part that opens the month: the week strip and
+            // the weather under it, not the time above.
+            readonly property real peekDaysTop: Theme.u(35)
+            readonly property bool overPeekDays: win.pillMode === "peek" && pillMouse.containsMouse && pillMouse.mouseY >= peekDaysTop
             readonly property Item view: {
                 switch (win.pillMode) {
                 case "peek":
@@ -498,7 +502,7 @@ PanelWindow {
                 id: pillMouse
                 anchors.fill: parent
                 hoverEnabled: true
-                cursorShape: ["calendar", "launcher", "power", "polkit", "wallpapers", "themes"].includes(win.pillMode) ? Qt.ArrowCursor : Qt.PointingHandCursor
+                cursorShape: ["calendar", "launcher", "power", "polkit", "wallpapers", "themes"].includes(win.pillMode) || (win.pillMode === "peek" && !pill.overPeekDays) ? Qt.ArrowCursor : Qt.PointingHandCursor
                 onContainsMouseChanged: {
                     if (containsMouse && Config.island.hoverCalendar && !win.anyOpen && !win.barMode)
                         peekTimer.restart();
@@ -527,8 +531,15 @@ PanelWindow {
                         win.osdKind = "";
                         IslandState.show("controlcenter", win.screenName);
                         break;
-                    case "idle":
                     case "peek":
+                        // Only the week and the weather open the month; the
+                        // time above them is just to look at.
+                        if (!pill.overPeekDays)
+                            break;
+                        win.peek = false;
+                        IslandState.toggle("calendar", win.screenName);
+                        break;
+                    case "idle":
                         win.peek = false;
                         IslandState.toggle("calendar", win.screenName);
                         break;
@@ -571,13 +582,15 @@ PanelWindow {
                         implicitWidth: peekView.fixedWidth
                         implicitHeight: peekView.fixedHeight
 
-                        // Hover hint: the whole peek is a button into the month.
+                        // Hover hint: the week and weather are a button into the month.
                         Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: Theme.u(6)
+                            x: Theme.u(6)
+                            y: pill.peekDaysTop
+                            width: parent.width - Theme.u(12)
+                            height: parent.height - y - Theme.u(6)
                             radius: Theme.u(16)
                             color: Theme.surface
-                            opacity: pillMouse.containsMouse ? 0.55 : 0
+                            opacity: pill.overPeekDays ? 0.55 : 0
                             Behavior on opacity { NumberAnimation { duration: Theme.fastDuration } }
                         }
 

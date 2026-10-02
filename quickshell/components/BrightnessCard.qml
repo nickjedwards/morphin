@@ -30,7 +30,7 @@ Rectangle {
         width: parent.width
         height: sliders.y - y
         inset: card.pad + Theme.u(6)
-        label: "Brightness"
+        label: "Display"
         detail: Displays.focused?.name ?? ""
         interactive: card.interactive
         onOpened: card.opened()
