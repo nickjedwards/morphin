@@ -316,6 +316,18 @@ PanelWindow {
                     duration: Theme.hoverDuration
                 }
             }
+            // The push down and out is held for as long as the panel is open:
+            // it opens from where hovering left the bubble. Closing, it
+            // shrinks and returns to rest in one motion — same curve, same
+            // time as the panel's own closing.
+            readonly property bool pushed: !win.barMode && (hovering || expanded)
+            property real pushT: pushed ? 1 : 0
+            Behavior on pushT {
+                Anim {
+                    curve: artBlob.pushed ? "hover" : "close"
+                    duration: artBlob.pushed || artBlob.progress < 0.01 ? Theme.hoverDuration : Theme.closeDuration
+                }
+            }
             transform: [
                 Scale {
                     origin.x: stage.base / 2
@@ -324,8 +336,8 @@ PanelWindow {
                     yScale: xScale
                 },
                 Translate {
-                    x: -1 * Theme.u(3.25) * artBlob.hoverT
-                    y: Theme.u(3.5) * artBlob.hoverT
+                    x: -1 * Theme.u(3.25) * artBlob.pushT
+                    y: Theme.u(3.5) * artBlob.pushT
                 }
             ]
 
@@ -464,10 +476,20 @@ PanelWindow {
             height: view ? view.targetHeight : hovered ? Theme.u(30) : stage.base
             x: (stage.width - width) / 2
             // Hovered, the pill grows and drops a little, as if pressed down.
-            y: stage.margin + (hovered ? Theme.u(4) : 0)
+            // The drop is held while something opened from the pill is showing:
+            // the week, the month, the launcher and the other panels open
+            // from where hovering left the pill. Closing, the pill shrinks
+            // and rises to rest in one motion — same curve, same time as its
+            // own closing. Passing things — volume, a notification, the
+            // workspace dots — don't dip it.
+            readonly property bool panelMode: ["peek", "calendar", "launcher", "power", "polkit", "wallpapers", "themes"].includes(win.pillMode)
+            readonly property bool dropped: !win.barMode && (hovered || panelMode)
+
+            y: stage.margin + (dropped ? Theme.u(4) : 0)
             Behavior on y {
                 Anim {
-                    curve: pill.curve
+                    curve: pill.dropped ? "hover" : "close"
+                    duration: pill.dropped || pill.progress < 0.01 ? Theme.hoverDuration : Theme.closeDuration
                 }
             }
             opacity: win.barMode ? Math.min(1, progress * 4) : 1
@@ -692,6 +714,18 @@ PanelWindow {
                     duration: Theme.hoverDuration
                 }
             }
+            // The push down and out is held for as long as the panel is open:
+            // it opens from where hovering left the bubble. Closing, it
+            // shrinks and returns to rest in one motion — same curve, same
+            // time as the panel's own closing.
+            readonly property bool pushed: !win.barMode && (hovering || expanded)
+            property real pushT: pushed ? 1 : 0
+            Behavior on pushT {
+                Anim {
+                    curve: statusBlob.pushed ? "hover" : "close"
+                    duration: statusBlob.pushed || statusBlob.progress < 0.01 ? Theme.hoverDuration : Theme.closeDuration
+                }
+            }
             transform: [
                 Scale {
                     origin.x: stage.base / 2
@@ -700,8 +734,8 @@ PanelWindow {
                     yScale: xScale
                 },
                 Translate {
-                    x: 1 * Theme.u(3.25) * statusBlob.hoverT
-                    y: Theme.u(3.5) * statusBlob.hoverT
+                    x: 1 * Theme.u(3.25) * statusBlob.pushT
+                    y: Theme.u(3.5) * statusBlob.pushT
                 }
             ]
 
