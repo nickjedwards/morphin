@@ -67,7 +67,7 @@ uninstall:
 # Needs a running Wayland session. Starts the staged copy under its own
 # name for a few seconds (a second island appears briefly) and fails if the
 # configuration doesn't load. The staged binary is what starts it, so the
-# command and `morpher serve` are checked too; it's built for $(NAME), so it is
+# command and `morpher alpha` are checked too; it's built for $(NAME), so it is
 # told where the staged copy is. Notification/polkit "already registered"
 # warnings are expected while another shell is running.
 CHECKDIR := .check
@@ -78,7 +78,7 @@ check: all
 	XDG_CONFIG_HOME=$$root/config XDG_STATE_HOME=$$root/state \
 	XDG_CACHE_HOME=$$root/cache XDG_DATA_HOME=$$root/data \
 	MORPHER=$$root/usr/bin/$(BIN) MORPHIN_SHELL_DIR=$$root/usr/share/$(NAME)-check \
-	timeout 8 $$root/usr/bin/$(BIN) > $$log 2>&1 || true; \
+	timeout 8 $$root/usr/bin/$(BIN) its-morphin-time --stay > $$log 2>&1 || true; \
 	rm -rf "$${XDG_RUNTIME_DIR:-/nonexistent}/$(NAME)-check"; \
 	if grep -q "Configuration Loaded" $$log && ! grep -qE "ERROR|TypeError|ReferenceError" $$log; then \
 		echo "check: loaded cleanly"; \

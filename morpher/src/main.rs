@@ -1,9 +1,9 @@
 //! morpher: one binary, two jobs for the morphin shell.
 //!
-//! As a command (`morpher`, `morpher -d`, `morpher ipc call …`) it is
+//! As a command (`morpher its-morphin-time`, `morpher dinozord …`) it is
 //! Quickshell pointed at the shell's QML: see `cli`.
 //!
-//! As `morpher serve` it is the handful of things the shell would otherwise
+//! As `morpher alpha` it is the handful of things the shell would otherwise
 //! poll or start a process for. The shell starts it once and talks to it
 //! over stdin/stdout, one JSON object per line each way.
 //!
@@ -55,14 +55,14 @@ const KBD_EVERY: Duration = Duration::from_millis(250);
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    if args.first().map(String::as_str) == Some("serve") {
-        serve();
+    if args.first().map(String::as_str) == Some("alpha") {
+        alpha();
     } else {
         std::process::exit(cli::run(&args));
     }
 }
 
-fn serve() {
+fn alpha() {
     let (tx, rx) = mpsc::channel();
 
     let stdin_tx = tx.clone();

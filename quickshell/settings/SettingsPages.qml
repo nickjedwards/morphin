@@ -228,7 +228,7 @@ Loader {
                 width: parent.width
                 SettingRow {
                     label: "Theme"
-                    description: `Or pick in the island: ${Meta.command} ipc call theme toggle`
+                    description: `Or pick in the island: ${Meta.command} theme toggle`
                     kind: "picker"
                     options: Themes.list.map(t => ({ label: t.id, value: t.id, colors: Themes.resolve(t).colors }))
                     value: Config.appearance.theme
@@ -316,7 +316,7 @@ Loader {
         Page {
             icon: Icons.search
             title: "Launcher"
-            subtitle: `${Meta.command} ipc call launcher toggle`
+            subtitle: `${Meta.command} launcher toggle`
 
             Section {
                 width: parent.width
@@ -413,7 +413,7 @@ Loader {
         Page {
             icon: Icons.lockFilled
             title: "Lock Screen"
-            subtitle: `${Meta.command} ipc call lock lock`
+            subtitle: `${Meta.command} lock lock`
 
             Section {
                 width: parent.width

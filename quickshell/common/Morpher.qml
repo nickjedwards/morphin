@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 
 // morpher, the shell's native side: the binary (morpher/, in Rust) run as
-// `morpher serve`, started once, for the things QML would otherwise poll or
+// `morpher alpha`, started once, for the things QML would otherwise poll or
 // start a process for — what's on this machine at startup, the process list,
 // the backlights. It talks in lines of JSON, both ways.
 //
@@ -33,7 +33,7 @@ Singleton {
         id: proc
         running: true
         stdinEnabled: true
-        command: [Meta.morpher, "serve"]
+        command: [Meta.morpher, "alpha"]
         // It makes the shell's directories before answering, so `ready`
         // also means they exist.
         onStarted: root.send({ cmd: "init", dirs: [Paths.config, Paths.state, Paths.artCache, Paths.themes], privateDir: Paths.runtime, link: Paths.wallpaperLink })
@@ -57,7 +57,7 @@ Singleton {
             if (running)
                 return;
             root.available = false;
-            console.error(`${Meta.name}: ${Meta.morpher} serve isn't running; build it with make`);
+            console.error(`${Meta.name}: ${Meta.morpher} alpha isn't running; build it with make`);
         }
     }
 }

@@ -7,7 +7,7 @@ Requisite=graphical-session.target
 
 [Service]
 Type=exec
-ExecStart=@BINDIR@/@BIN@
+ExecStart=@BINDIR@/@BIN@ its-morphin-time --stay
 Restart=on-failure
 RestartSec=1
 # Desktop shells belong in session.slice, alongside the compositor.

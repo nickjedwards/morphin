@@ -11,13 +11,14 @@ import Quickshell
 Singleton {
     readonly property string name: "morphin"
 
-    // How to reach the running shell from a terminal or keybind: the
-    // installed command, or `qs -p <this folder>` when run from source.
+    // How to call the running shell from a terminal or keybind, for hints:
+    // the installed command, or Quickshell itself when run from source.
+    // Followed by a target and a function: `<command> launcher toggle`.
     readonly property bool installed: !Quickshell.shellDir.startsWith(Quickshell.env("HOME") + "/")
-    readonly property string command: installed ? "morpher" : `qs -p ${Quickshell.shellDir.replace(Quickshell.env("HOME"), "~")}`
+    readonly property string command: installed ? "morpher dinozord" : `qs -p ${Quickshell.shellDir.replace(Quickshell.env("HOME"), "~")} ipc call`
 
     // The morpher binary (morpher/), which is both the installed command and,
-    // run as `morpher serve`, the shell's native side (see common/Morpher.qml):
+    // run as `morpher alpha`, the shell's native side (see common/Morpher.qml):
     // where `make install` put it, or cargo's build next to the checkout.
     // $MORPHER overrides both.
     readonly property string binary: "/usr/local/bin/morpher"
