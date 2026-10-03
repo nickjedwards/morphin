@@ -18,6 +18,12 @@ Singleton {
         return [[1, 1], [2, 1], [3, 1], [4, 1]];
     }
 
+    // One cell tall with the two sliders side by side, or two with them
+    // stacked.
+    function sliderSizes(): var {
+        return range(3, 9).map(w => [w, 1]).concat(range(3, 9).map(w => [w, 2]));
+    }
+
     readonly property var types: ({
             wifi: { label: "Wi-Fi", icon: Icons.wifi, sizes: toggleSizes(), size: [3, 1], page: "wifi" },
             bluetooth: { label: "Bluetooth", icon: Icons.bluetooth, sizes: toggleSizes(), size: [3, 1], page: "bluetooth" },
@@ -26,8 +32,8 @@ Singleton {
             nightlight: { label: "Night Light", icon: Icons.nightLight, sizes: toggleSizes(), size: [1, 1] },
             lock: { label: "Lock", icon: Icons.lock, sizes: [[1, 1], [2, 1], [3, 1]], size: [1, 1] },
             power: { label: "Power", icon: Icons.power, sizes: [[1, 1], [2, 1], [3, 1]], size: [1, 1] },
-            audio: { label: "Audio", icon: Icons.volumeHigh, sizes: range(3, 9).map(w => [w, 1]), size: [7, 1], page: "audio" },
-            brightness: { label: "Brightness", icon: Icons.brightness, sizes: range(3, 9).map(w => [w, 1]), size: [7, 1], page: "display" },
+            audio: { label: "Audio", icon: Icons.volumeHigh, sizes: sliderSizes(), size: [7, 2], page: "audio" },
+            brightness: { label: "Brightness", icon: Icons.brightness, sizes: sliderSizes(), size: [7, 2], page: "display" },
             notifications: { label: "Notifications", icon: Icons.bell, sizes: range(4, 9).reduce((all, w) => all.concat(range(2, 6).map(h => [w, h])), []), size: [7, 3] },
             system: { label: "System", icon: Icons.chip, page: "system", sizes: [[1, 1]].concat(range(3, 9).map(w => [w, 1])), size: [7, 1] },
             powermode: { label: "Power Mode", icon: Icons.speedometer, page: "power", sizes: [[1, 1]].concat(range(3, 9).map(w => [w, 1])), size: [7, 1] },

@@ -4,7 +4,8 @@ import qs.services
 
 // Brightness: a header (the focused monitor, opening the Display page) over
 // the sliders this machine actually has — the focused screen's brightness
-// and the keyboard backlight, side by side, or one at full width.
+// and the keyboard backlight. Two cells tall, they stack, each the full
+// width; one cell tall, they sit side by side, or one has the full width.
 Rectangle {
     id: card
 
@@ -19,7 +20,8 @@ Rectangle {
     readonly property bool hasScreen: Displays.focusedHasBrightness
     readonly property bool hasKeyboard: KeyboardLight.available
     readonly property int count: (hasScreen ? 1 : 0) + (hasKeyboard ? 1 : 0)
-    readonly property real sliderWidth: count === 2 ? (width - pad * 3) / 2 : width - pad * 2
+    readonly property bool stacked: height > Theme.u(70)
+    readonly property real sliderWidth: count === 2 && !stacked ? (width - pad * 3) / 2 : width - pad * 2
 
     implicitHeight: Theme.u(46)
     radius: sliderHeight / 2 + pad
@@ -32,14 +34,17 @@ Rectangle {
         inset: card.pad + Theme.u(6)
         label: "Display"
         detail: Displays.focused?.name ?? ""
+        icon: Icons.monitor
+        tall: card.stacked
         interactive: card.interactive
         onOpened: card.opened()
     }
 
-    Row {
+    Grid {
         id: sliders
         x: card.pad
-        y: card.height - card.pad - card.sliderHeight
+        y: card.height - card.pad - Math.max(height, card.sliderHeight)
+        columns: card.stacked ? 1 : 2
         spacing: card.pad
 
         Slider {
@@ -66,7 +71,7 @@ Rectangle {
     Rectangle {
         visible: card.count === 0
         x: card.pad
-        y: sliders.y
+        y: card.height - card.pad - height
         width: parent.width - card.pad * 2
         height: card.sliderHeight
         radius: height / 2

@@ -31,9 +31,9 @@ Singleton {
         { type: "bluetooth", x: 0, y: 1, w: 3, h: 1 },
         { type: "gamemode", x: 3, y: 1, w: 3, h: 1 },
         { type: "nightlight", x: 6, y: 1, w: 1, h: 1 },
-        { type: "audio", x: 0, y: 2, w: 7, h: 1 },
-        { type: "brightness", x: 0, y: 3, w: 7, h: 1 },
-        { type: "notifications", x: 0, y: 4, w: 7, h: 3 }
+        { type: "audio", x: 0, y: 2, w: 7, h: 2 },
+        { type: "brightness", x: 0, y: 4, w: 7, h: 2 },
+        { type: "notifications", x: 0, y: 6, w: 7, h: 3 }
     ]
 
     function save(): void {
