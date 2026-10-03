@@ -886,7 +886,9 @@ PanelWindow {
                 onWheel: wheel => Audio.nudge(wheel.angleDelta.y > 0 ? 0.05 : -0.05)
             }
 
-            // Ring (battery or volume) around the network glyph.
+            // Ring (battery or volume) around a glyph matching what it shows:
+            // the battery or the volume, else — no ring, or no battery —
+            // the network.
             Item {
                 width: stage.base
                 height: stage.base
@@ -942,7 +944,17 @@ PanelWindow {
 
                 Icon {
                     anchors.centerIn: parent
-                    text: Net.icon
+                    text: {
+                        switch (Config.island.ring) {
+                        case "battery":
+                            if (Battery.available)
+                                return Battery.icon;
+                            break;
+                        case "volume":
+                            return Audio.icon;
+                        }
+                        return Net.icon;
+                    }
                     size: Theme.u(9)
                     color: Theme.text
                 }
