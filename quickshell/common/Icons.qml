@@ -20,7 +20,6 @@ Singleton {
     readonly property string focus: g(0xf0377)
     readonly property string gameMode: g(0xf0297)
     readonly property string lock: g(0xf0341)
-    readonly property string lockFilled: g(0xf033e)
     readonly property string sleep: g(0xf0f65)
     readonly property string nightLight: g(0xf0f65)
     readonly property string volumeHigh: g(0xf057e)

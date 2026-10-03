@@ -23,8 +23,6 @@ Loader {
             return notificationsPage;
         case "controlcenter":
             return controlCenterPage;
-        case "lock":
-            return lockPage;
         case "system":
             return systemPage;
         }
@@ -404,38 +402,6 @@ Loader {
 
             LayoutEditor {
                 width: parent.width
-            }
-        }
-    }
-
-    Component {
-        id: lockPage
-        Page {
-            icon: Icons.lockFilled
-            title: "Lock Screen"
-            subtitle: `${Meta.command} lock lock`
-
-            Section {
-                width: parent.width
-                SettingRow {
-                    label: "Blur the wallpaper"
-                    value: Config.lock.blur
-                    onChanged: v => Config.lock.blur = v
-                }
-                SettingRow {
-                    label: "Show the date"
-                    value: Config.lock.showDate
-                    onChanged: v => Config.lock.showDate = v
-                }
-                SettingRow {
-                    label: "12-hour clock"
-                    value: Config.lock.twelveHour
-                    onChanged: v => Config.lock.twelveHour = v
-                }
-            }
-            PillButton {
-                text: "Preview"
-                onClicked: Session.previewLock()
             }
         }
     }

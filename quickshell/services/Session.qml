@@ -14,20 +14,15 @@ Singleton {
 
     readonly property string gameModeLua: "hl.config({ animations = { enabled = false }, decoration = { rounding = 0, blur = { enabled = false }, shadow = { enabled = false } }, general = { gaps_in = 0, gaps_out = 0 } })"
 
-    signal lockRequested
-    signal lockPreviewRequested
-
-    function previewLock(): void {
-        root.lockPreviewRequested();
-    }
-
     function toggleGameMode(): void {
         root.gameMode = !root.gameMode;
         Quickshell.execDetached(root.gameMode ? ["hyprctl", "eval", root.gameModeLua] : ["hyprctl", "reload"]);
     }
 
+    // The shell has no lock screen of its own: it asks the session to lock,
+    // and whatever is listening (hypridle running hyprlock, say) does it.
     function lock(): void {
-        root.lockRequested();
+        Quickshell.execDetached(["loginctl", "lock-session"]);
     }
     function suspend(): void {
         Quickshell.execDetached(["systemctl", "suspend"]);

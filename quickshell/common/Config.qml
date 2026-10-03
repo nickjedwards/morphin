@@ -20,7 +20,6 @@ Singleton {
     property alias launcher: adapter.launcher
     property alias notifications: adapter.notifications
     property alias controlCenter: adapter.controlCenter
-    property alias lock: adapter.lock
     property alias system: adapter.system
     property alias power: adapter.power
 
@@ -147,12 +146,6 @@ Singleton {
             property JsonObject controlCenter: JsonObject {
                 property int columns: 7
                 property var items: root.defaultLayout
-            }
-
-            property JsonObject lock: JsonObject {
-                property bool blur: true
-                property bool showDate: true
-                property bool twelveHour: false
             }
 
             property JsonObject power: JsonObject {

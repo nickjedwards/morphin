@@ -101,7 +101,7 @@ morph(mainMod .. " + C",      "island toggle controlcenter") -- control center
 morph(mainMod .. " + W",      "wallpaper toggle")            -- wallpaper picker
 morph(mainMod .. " + T",      "theme toggle")                -- theme picker
 morph(mainMod .. " + comma",  "settings toggle")             -- settings window
-morph(mainMod .. " + L",      "lock lock")                   -- lock screen
+morph(mainMod .. " + L",      "lock lock")                   -- lock the session
 morph(mainMod .. " + Escape", "power toggle")                -- power menu
 morph(mainMod .. " + G",      "gamemode toggle")             -- Game mode
 
@@ -117,6 +117,8 @@ morph("XF86AudioNext",               "media next",      { locked = true })
 morph("XF86AudioPrev",               "media previous",  { locked = true })
 morph(mainMod .. " + XF86AudioPlay", "media cycle") -- switch player
 ```
+
+morphin has no lock screen of its own. Its Lock actions (the control-center button, the power menu, locking before suspend, and `lock lock`) ask the session to lock, so something has to be listening: for example [hypridle](https://wiki.hypr.land/Hypr-Ecosystem/hypridle/) with `lock_cmd = pidof hyprlock || hyprlock`.
 
 ---
 
@@ -163,9 +165,8 @@ All commands take the form `morpher dinozord <target> <function> [argument]`.
 | `power` | `toggle` |
 | `wallpaper` | `toggle` · `next` · `previous` · `set <path>` · `get` |
 | `theme` | `toggle` · `set <name>` · `get` |
-| `settings` | `toggle` · `open <page>` (island, clock, appearance, motion, launcher, notifications, controlcenter, lock, system) |
-| `lock` | `lock` |
-| `lockscreen` | `preview` |
+| `settings` | `toggle` · `open <page>` (island, clock, appearance, motion, launcher, notifications, controlcenter, system) |
+| `lock` | `lock` (asks the session to lock: `loginctl lock-session`) |
 | `volume` | `up` · `down` · `mute` |
 | `brightness` | `up` · `down` (focused monitor) |
 | `keyboard` | `up` · `down` · `toggle` · `get` (keyboard backlight) |

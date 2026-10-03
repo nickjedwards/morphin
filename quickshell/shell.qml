@@ -4,7 +4,6 @@ import Quickshell
 import Quickshell.Io
 import qs.common
 import qs.island
-import qs.lock
 import qs.settings
 import qs.wallpaper
 import qs.services
@@ -20,7 +19,6 @@ ShellRoot {
         delegate: Island {}
     }
 
-    LockScreen {}
     SettingsWindow {}
 
     // Singletons load lazily; the notification server and polkit agent have

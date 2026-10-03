@@ -20,7 +20,6 @@ Singleton {
         { id: "launcher", label: "Launcher", icon: Icons.search, keywords: "apps search results terminal" },
         { id: "notifications", label: "Notifications", icon: Icons.bell, keywords: "popup focus do not disturb game" },
         { id: "controlcenter", label: "Control Center", icon: Icons.tune, keywords: "layout grid tiles controls arrange" },
-        { id: "lock", label: "Lock Screen", icon: Icons.lockFilled, keywords: "blur clock date password" },
         { id: "system", label: "System", icon: Icons.cog, keywords: "night light osd logout brightness" }
     ]
 
