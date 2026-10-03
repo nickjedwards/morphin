@@ -3,7 +3,6 @@ pragma Singleton
 import QtQuick
 import Qt.labs.folderlistmodel
 import Quickshell
-import Quickshell.Io
 import Quickshell.Hyprland
 
 // The wallpaper: which file it is, which files it could be, and its colours.
@@ -26,10 +25,11 @@ Singleton {
     }
 
     // The configured path, which may be a symlink ($XDG_CONFIG_HOME/wallpaper);
-    // `resolved` is the real file behind it.
+    // `resolved` is the real file behind it, which morpher looks up at
+    // startup.
     readonly property string path: expand(Config.appearance.wallpaper)
-    readonly property string linkPath: Paths.configHome + "/wallpaper"
-    property string linkTarget: ""
+    readonly property string linkPath: Paths.wallpaperLink
+    property string linkTarget: Morpher.info.wallpaperLink ?? ""
     readonly property string resolved: path === linkPath && linkTarget ? linkTarget : path
     readonly property url source: resolved ? "file://" + resolved : ""
     readonly property string name: nameOf(resolved)
@@ -86,25 +86,9 @@ Singleton {
         rescaleSize: 96
     }
 
-    Process {
-        id: resolver
-        command: ["readlink", "-f", root.linkPath]
-        stdout: StdioCollector {
-            onStreamFinished: root.linkTarget = text.trim()
-        }
-    }
-    Component.onCompleted: resolver.running = true
-
     // hyprpaper draws the wallpaper when it's running; the shell only draws
     // the crossfade on top. Without it, the shell draws the wallpaper itself.
-    property bool hyprpaper: false
-
-    Process {
-        id: hyprpaperProbe
-        command: ["pgrep", "-x", "hyprpaper"]
-        running: true
-        onExited: code => root.hyprpaper = code === 0
-    }
+    readonly property bool hyprpaper: Morpher.info.hyprpaper ?? false
 
     // Emitted when the wallpaper changes, with both files, for the crossfade.
     signal changed(string from, string to)

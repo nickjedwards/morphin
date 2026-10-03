@@ -14,7 +14,7 @@ A morphing-island shell for [Hyprland](https://hypr.land). It's morphin' time!
 
 ## Install
 
-It's plain QML, so there's nothing to compile: installing copies the files and sets up a launcher.
+The shell is plain QML; the one thing to compile is its binary, `morpher` (`morpher/`, in Rust, so building needs `cargo`). It is both the command you run and a small program the shell starts for itself (`morpher serve`), which reads the process list and watches the backlights so the shell doesn't have to poll or start programs for them.
 
 **Arch (AUR-style package):** `dist/arch/PKGBUILD` builds `morphin-git` from the repository:
 
@@ -25,6 +25,7 @@ cd dist/arch && makepkg -si
 **Anywhere else, with make:**
 
 ```sh
+make                         # build the binary (needs cargo)
 sudo make install            # to /usr/local
 make install PREFIX=~/.local # just for you (make sure ~/.local/bin is on PATH)
 ```
@@ -33,7 +34,7 @@ Either way you get:
 
 | Installed | What it is |
 |---|---|
-| `bin/morphin` | the launcher: `morphin`, `morphin -d`, `morphin ipc call …`, `morphin kill`, `morphin log` |
+| `bin/morpher` | the command: `morpher`, `morpher -d`, `morpher ipc call …`, `morpher kill`, `morpher log` |
 | `share/morphin/` | the shell itself |
 | `lib/systemd/user/morphin.service` | optional autostart |
 | `share/doc/morphin/`, `share/licenses/morphin/` | this README and the licence |
@@ -47,7 +48,7 @@ Either way you get:
 Either start it from `~/.config/hypr/hyprland.lua`:
 
 ```lua
-hl.exec_cmd("morphin -d")
+hl.exec_cmd("morpher -d")
 ```
 
 or, if your session starts `graphical-session.target` (for example under [uwsm](https://github.com/Vladimir-csp/uwsm)), let systemd run it, which also restarts it if it crashes:
@@ -59,7 +60,7 @@ systemctl --user enable --now morphin.service
 Restart it without logging out:
 
 ```sh
-morphin kill; morphin -d
+morpher kill; morpher -d
 # or: systemctl --user restart morphin
 ```
 
@@ -71,7 +72,7 @@ A set to start from, in Hyprland's Lua syntax:
 
 ```lua
 local mainMod  = "SUPER"
-local morphinTime = "morphin ipc call"
+local morphinTime = "morpher ipc call"
 
 local morph = function(keys, cmd, opts)
     hl.bind(keys, hl.dsp.exec_cmd(morphinTime .. " " .. cmd), opts)
@@ -135,7 +136,7 @@ Every change is saved immediately to `$XDG_CONFIG_HOME/morphin/config.json` (nor
 
 ## IPC reference
 
-All commands take the form `morphin ipc call <target> <function> [argument]`.
+All commands take the form `morpher ipc call <target> <function> [argument]`.
 
 | Target | Functions |
 |---|---|
@@ -157,7 +158,7 @@ All commands take the form `morphin ipc call <target> <function> [argument]`.
 list everything live:
 
 ```sh
-morphin ipc show
+morpher ipc show
 ```
 
 ---
@@ -179,6 +180,8 @@ morphin follows the [XDG Base Directory spec](https://specifications.freedesktop
 
 ## Development
 
-Run from the checkout with `qs -p quickshell` (the QML lives in `quickshell/`); Quickshell reloads it as you save.
+Run `make` once, then run from the checkout with `qs -p quickshell` (the QML lives in `quickshell/`); Quickshell reloads it as you save.
+
+The binary lives in `morpher/`; `make` builds it to `morpher/target/release/morpher`. Run from there it uses the checkout's QML, so `morpher/target/release/morpher ipc call …` works like the installed command. The shell needs it too: a shell run from the checkout starts it for itself (`morpher serve`, from `common/Morpher.qml`; set `MORPHER` to point it at another binary), so run `make` before `qs -p quickshell`. The two speak lines of JSON on stdin/stdout; `morpher/src/main.rs` lists the messages. It isn't reloaded on save: restart the shell after rebuilding. `cargo test --manifest-path morpher/Cargo.toml` runs its tests.
 
 `make check` installs a copy into `.check/` and starts it for a few seconds under a separate name and separate XDG folders. It fails if the configuration doesn't load, and shows the errors. It needs a running Wayland session, and a second island shows briefly while it runs. QML errors only show up when it's loaded, so run it before committing.

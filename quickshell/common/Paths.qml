@@ -2,7 +2,6 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 
 // Where the shell keeps things, per the XDG Base Directory spec. Each base
 // honours its environment variable and falls back to the spec's default.
@@ -54,12 +53,10 @@ Singleton {
         return p.startsWith("~") ? root.home + p.slice(1) : p;
     }
 
-    // Everything exists before anyone writes: the runtime dir private to us,
-    // as the spec requires of it.
-    property bool ready: false
-    Process {
-        running: true
-        command: ["sh", "-c", 'mkdir -p "$1" "$2" "$3" "$4" "$5" && chmod 700 "$5"', "sh", root.config, root.state, root.artCache, root.themes, root.runtime]
-        onExited: root.ready = true
-    }
+    // $XDG_CONFIG_HOME/wallpaper: see Wallpaper.
+    readonly property string wallpaperLink: configHome + "/wallpaper"
+
+    // Everything exists before anyone writes: morpher makes them before
+    // it says hello, the runtime dir private to us as the spec requires.
+    readonly property bool ready: Morpher.available
 }

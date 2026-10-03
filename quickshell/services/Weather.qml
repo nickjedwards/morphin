@@ -2,7 +2,6 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import qs.common
 
 // Weather for the week around today, from Open-Meteo (free, no key): the
@@ -33,18 +32,11 @@ Singleton {
     readonly property bool ready: days.length > 0
 
     // ── Where ────────────────────────────────────────────────────────
-    property string zoneCity: ""
+    // The city of the system's time zone, which morpher resolves at
+    // startup: …/zoneinfo/Australia/Melbourne → "Melbourne"
+    readonly property string zoneCity: (Morpher.info.zone ?? "").split("/").pop().replace(/_/g, " ")
     readonly property string query: Config.weather.location.trim() || zoneCity
     property var coords: null            // { latitude, longitude }
-
-    Process {
-        running: true
-        command: ["readlink", "-f", "/etc/localtime"]
-        stdout: StdioCollector {
-            // …/zoneinfo/Australia/Melbourne → "Melbourne"
-            onStreamFinished: root.zoneCity = text.trim().split("/").pop().replace(/_/g, " ")
-        }
-    }
 
     onQueryChanged: locate()
     onEnabledChanged: locate()

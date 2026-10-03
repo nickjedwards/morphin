@@ -7,12 +7,11 @@ pkgname=${_pkgname}-git
 pkgver=r0
 pkgrel=1
 pkgdesc="A morphing-island shell for Hyprland, it's morphin' time!"
-arch=("any")
+arch=('x86_64' 'aarch64')
 url="https://github.com/nickjedwards/${_pkgname}"
 license=('GPL-3.0-only')
 depends=(
     'bluez'
-    'brightnessctl'
     'networkmanager'
     'pipewire'
     'qt6-declarative'
@@ -31,7 +30,7 @@ optdepends=(
     'playerctl'
     'power-profiles-daemon'
 )
-makedepends=('git')
+makedepends=('cargo' 'git')
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
 source=("${_pkgname}::git+${url}.git#branch=main")
@@ -40,6 +39,11 @@ sha256sums=('SKIP')
 pkgver() {
     cd "$srcdir/${_pkgname}"
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+build() {
+    cd "$srcdir/${_pkgname}"
+    make NAME="${_pkgname}"
 }
 
 package() {

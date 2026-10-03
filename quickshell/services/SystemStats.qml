@@ -9,8 +9,8 @@ import qs.common
 // processes. It ticks slowly in the background, just enough to notice
 // sustained strain for the status ring; once a second while something is
 // showing the numbers (`watchers`); and it only keeps history, reads the
-// temperature and lists processes while the System page is open
-// (`detailWatchers`).
+// temperature and lists processes (which come from morpher) while the
+// System page is open (`detailWatchers`).
 Singleton {
     id: root
 
@@ -129,62 +129,39 @@ Singleton {
     }
 
     // ── Temperature ──────────────────────────────────────────────────
-    // The CPU's own sensor, found by name once: hwmon numbers move around.
-    Process {
-        running: true
-        command: ["sh", "-c", 'for h in /sys/class/hwmon/hwmon*; do case "$(cat "$h/name" 2>/dev/null)" in k10temp|coretemp|zenpower|cpu_thermal) [ -r "$h/temp1_input" ] && { echo "$h/temp1_input"; exit; };; esac; done']
-        stdout: StdioCollector {
-            onStreamFinished: temp.path = text.trim()
-        }
-    }
+    // The CPU's own sensor, which morpher finds by name at startup: hwmon
+    // numbers move around.
     FileView {
         id: temp
-        path: ""
+        path: Morpher.info.cpuTemp ?? ""
         printErrors: false
         onLoaded: root.temperature = parseInt(text()) / 1000
     }
 
     // ── Processes ────────────────────────────────────────────────────
-    // Two samples a second apart: the first is an average since each process
-    // started, which says nothing about now.
-    Process {
-        id: top
-        command: ["top", "-b", "-n", "2", "-d", "1", "-w", "200", "-o", root.sortBy === "mem" ? "%MEM" : "%CPU"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const sample = text.split(/\n\s*PID\s+USER[^\n]*\n/).pop() ?? "";
-                const out = [];
-                for (const line of sample.split("\n")) {
-                    const f = line.trim().split(/\s+/);
-                    if (f.length < 12 || isNaN(parseInt(f[0])))
-                        continue;
-                    const name = f.slice(11).join(" ");
-                    if (name === "top")
-                        continue;
-                    out.push({ pid: parseInt(f[0]), name, cpu: parseFloat(f[8]), mem: parseFloat(f[9]) });
-                    if (out.length === 5)
-                        break;
-                }
-                root.processes = out;
-            }
+    // morpher reads /proc itself and sends the list once a second while
+    // it's asked to; a change of order is answered straight away.
+    readonly property bool detailed: detailWatchers > 0
+
+    function ask(): void {
+        Morpher.send({ cmd: "procs", on: root.detailed, sort: root.sortBy });
+    }
+
+    onDetailedChanged: ask()
+
+    Connections {
+        target: Morpher
+        function onAvailableChanged(): void {
+            if (Morpher.available && root.detailed)
+                root.ask();
+        }
+        function onMessage(msg): void {
+            if (msg.type === "procs" && root.detailed)
+                root.processes = msg.list;
         }
     }
 
-    Timer {
-        interval: 3000
-        running: root.detailWatchers > 0
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!top.running)
-                top.running = true;
-        }
-    }
-
-    onSortByChanged: {
-        if (root.detailWatchers > 0 && !top.running)
-            top.running = true;
-    }
+    onSortByChanged: ask()
 
     onDetailWatchersChanged: {
         if (root.detailWatchers === 0) {

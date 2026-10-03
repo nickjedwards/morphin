@@ -1,0 +1,19 @@
+[package]
+name = "morpher"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+description = "The command for the morphin shell, and the native side the shell starts for the things QML would otherwise poll or shell out for"
+publish = false
+
+[dependencies]
+libc = "0.2"
+serde_json = "1"
+zbus = "5"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

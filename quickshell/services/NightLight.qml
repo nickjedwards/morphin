@@ -13,7 +13,8 @@ Singleton {
     // Remembered across restarts.
     property bool enabled: AppState.nightLight ?? false
     onEnabledChanged: AppState.nightLight = enabled
-    property bool available: false
+    // Whether hyprsunset is installed, as morpher found at startup.
+    readonly property bool available: Morpher.info.hyprsunset ?? false
     readonly property int temperature: Config.system.nightLightTemp
     readonly property int minTemp: 2500
     readonly property int maxTemp: 6000
@@ -29,13 +30,6 @@ Singleton {
         const t = Math.round((root.maxTemp - Math.max(0, Math.min(1, v)) * (root.maxTemp - root.minTemp)) / 50) * 50;
         Config.system.nightLightTemp = t;
         apply.restart();
-    }
-
-    Process {
-        id: probe
-        command: ["sh", "-c", "command -v hyprsunset"]
-        running: true
-        onExited: code => root.available = code === 0
     }
 
     Process {

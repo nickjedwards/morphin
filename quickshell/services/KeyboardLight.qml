@@ -2,12 +2,12 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
+import qs.common
 
 // The keyboard backlight: the first *kbd_backlight LED, found once at
-// startup. Written through brightnessctl (the sysfs file is root's; it goes
-// via logind), read by re-reading the file, since firmware keys (Fn+Space)
-// change it without telling anyone.
+// startup. Written through logind (the sysfs file is root's), read by
+// re-reading the file, since firmware keys (Fn+Space) change it without
+// telling anyone. morpher does all three and says when it changes.
 //
 // Some keyboards have a handful of fixed levels (max 2 or 3), others a range
 // (max 100 on a Framework): steps are one level on the former, 10% on the
@@ -15,8 +15,8 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property string device: ""
-    property int max: 0
+    readonly property string device: Morpher.info.kbd?.device ?? ""
+    readonly property int max: Morpher.info.kbd?.max ?? 0
     property int raw: 0
 
     readonly property bool available: device !== "" && max > 0
@@ -54,47 +54,39 @@ Singleton {
         }
     }
 
-    Process {
-        running: true
-        command: ["sh", "-c", 'for d in /sys/class/leds/*kbd_backlight*; do [ -e "$d/max_brightness" ] && { basename "$d"; cat "$d/max_brightness"; break; }; done']
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const [device, max] = text.trim().split("\n");
-                if (device && parseInt(max) > 0) {
-                    root.device = device;
-                    root.max = parseInt(max);
-                }
-            }
-        }
-    }
-
     Timer {
         id: writeTimer
         interval: 60
-        onTriggered: Quickshell.execDetached(["brightnessctl", "-q", "-d", root.device, "set", String(root.raw)])
+        onTriggered: Morpher.send({ cmd: "brightness", subsystem: "leds", id: root.device, value: root.raw })
     }
 
-    FileView {
-        id: reader
-        path: root.available ? `/sys/class/leds/${root.device}/brightness` : ""
-        printErrors: false
-        onLoaded: {
-            const value = parseInt(text());
-            if (isNaN(value) || value === root.raw || writeTimer.running)
-                return;
-            const first = !reader.seen;
-            reader.seen = true;
-            root.raw = value;
-            if (!first)
-                root.touched();
+    // The level as the file has it. The first reading is where it already
+    // was, not a change.
+    property bool seen: false
+    function observed(value: int): void {
+        if (isNaN(value) || writeTimer.running)
+            return;
+        const first = !root.seen;
+        root.seen = true;
+        if (value === root.raw)
+            return;
+        root.raw = value;
+        if (!first)
+            root.touched();
+    }
+
+    // Ask where it is now; after that morpher only speaks up on a change.
+    readonly property bool listening: root.available && Morpher.available
+    onListeningChanged: {
+        if (root.listening)
+            Morpher.send({ cmd: "kbd" });
+    }
+
+    Connections {
+        target: Morpher
+        function onMessage(msg): void {
+            if (msg.type === "kbd")
+                root.observed(msg.value);
         }
-        property bool seen: false
-    }
-
-    Timer {
-        interval: 250
-        running: root.available
-        repeat: true
-        onTriggered: reader.reload()
     }
 }
