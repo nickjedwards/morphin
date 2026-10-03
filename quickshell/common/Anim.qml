@@ -11,6 +11,10 @@ import QtQuick
 //   fade   — opacity and colour-ish things: plain decelerate
 NumberAnimation {
     property string curve: "open"
+    // Scales how far the elastic curve goes past its target and back: 1 is
+    // the full spring, 0 none. Lets a move swing a set distance whatever
+    // how far it travels.
+    property real overshoot: 1
 
     duration: {
         switch (curve) {
@@ -28,7 +32,7 @@ NumberAnimation {
         // Three bezier segments joined where the motion turns round, each
         // join flat so the curve stays smooth: up to 1.06 by 42% of the
         // time, back to 0.988 by 70%, and home.
-        const settle = [0.15, 0.9, 0.3, 1.06, 0.42, 1.06, 0.52, 1.06, 0.6, 0.988, 0.7, 0.988, 0.8, 0.988, 0.88, 1, 1, 1];
+        const settle = [0.15, 0.9, 0.3, 1.06, 0.42, 1.06, 0.52, 1.06, 0.6, 0.988, 0.7, 0.988, 0.8, 0.988, 0.88, 1, 1, 1].map((v, i) => i >= 3 && i % 2 ? 1 + (v - 1) * overshoot : v);
         const decelerate = [0.2, 0, 0, 1, 1, 1];
         switch (curve) {
         case "close":

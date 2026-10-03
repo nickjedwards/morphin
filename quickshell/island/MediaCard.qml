@@ -51,12 +51,19 @@ ClippingRectangle {
     readonly property real pulseExtent: pulse.gap + pulse.reach
     readonly property real clearance: Theme.u(8)
 
+    // While the island opens or closes, a stand-in cover flies between the
+    // bubble and here (see Island), so the real one hides and the pulse
+    // waits; it fades in once the cover has landed.
+    property bool artHidden: false
+    readonly property rect artRect: Qt.rect(art.x, art.y, art.width, art.height)
+    readonly property real artCornerRadius: art.radius
+
     ArtPulse {
         id: pulse
         anchors.centerIn: art
         artSize: art.width
         artRadius: art.radius
-        live: Media.playing
+        live: Media.playing && !root.artHidden
     }
 
     ClippingRectangle {
@@ -69,6 +76,7 @@ ClippingRectangle {
         radius: (Config.island.artShape ?? "rounded") === "circle" ? width / 2 : Theme.u(8)
         Behavior on radius { Anim { curve: "hover" } }
         color: "#1c211d"
+        opacity: root.artHidden ? 0 : 1
 
         Icon {
             anchors.centerIn: parent

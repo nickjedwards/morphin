@@ -307,10 +307,11 @@ PanelWindow {
         // ── Album art → media card ───────────────────────────────────
         Blob {
             id: artBlob
+            restSize: stage.base
 
             expanded: win.mediaOpen
-            width: expanded ? Theme.u(309) : stage.base
-            height: expanded ? Theme.u(161) : stage.base
+            width: sizeOpen ? Theme.u(309) : stage.base
+            height: sizeOpen ? Theme.u(161) : stage.base
             x: pill.x - stage.gap - width
             y: stage.margin
             opacity: win.barMode ? Math.min(1, progress * 4) : 1
@@ -375,8 +376,16 @@ PanelWindow {
                 height: width
                 radius: width / 2
                 color: Theme.surface
+                // Squashes with the closing bounce, about the bubble's top
+                // right corner, which stays put as the shape shrinks.
+                transform: Scale {
+                    origin.x: stage.base - Theme.u(2.5)
+                    origin.y: -Theme.u(2.5)
+                    xScale: artBlob.squash
+                    yScale: artBlob.squash
+                }
                 opacity: artBlob.idleOpacity
-                visible: opacity > 0
+                visible: opacity > 0 && !coverFlight.flying
 
                 Icon {
                     anchors.centerIn: parent
@@ -440,11 +449,80 @@ PanelWindow {
             }
 
             Loader {
+                id: mediaCard
                 active: artBlob.progress > 0
                 x: artBlob.width - Theme.u(10) - width
                 y: Theme.u(10)
                 opacity: artBlob.contentOpacity
                 sourceComponent: MediaCard {}
+                Binding {
+                    target: mediaCard.item
+                    property: "artHidden"
+                    value: coverFlight.flying
+                    when: mediaCard.item !== null
+                }
+            }
+
+            // The cover, flying between the bubble and the card as the
+            // island opens and closes: one cover that moves and grows,
+            // turning from the bubble's circle into the card's shape, rather
+            // than one fading out while another fades in. It follows the
+            // shape's own size, so it springs with the opening and, closing,
+            // squashes with the shape as it settles into the bubble. Both
+            // ends are pinned to the shape's right edge, where the bubble
+            // sits and the card grows from, so it's placed from there. While
+            // it flies, the bubble's cover and the card's hide.
+            ClippingRectangle {
+                id: coverFlight
+
+                readonly property bool flying: artBlob.expanded ? artBlob.progress < 1 : artBlob.curve === "close"
+                // 0 at the bubble, 1 in the open card; past 1 with the spring.
+                readonly property real f: Math.max(0, (artBlob.width - stage.base) / (Theme.u(309) - stage.base))
+                // The card's cover, in the shape's coordinates once open.
+                readonly property rect target: {
+                    const r = mediaCard.item?.artRect ?? Qt.rect(Theme.u(18.5), Theme.u(18.5), Theme.u(80), Theme.u(80));
+                    return Qt.rect(Theme.u(309) - Theme.u(10) - Theme.u(289) + r.x, Theme.u(10) + r.y, r.width, r.height);
+                }
+                readonly property real restSize: stage.base - Theme.u(5)
+                function mix(a: real, b: real): real {
+                    return a + (b - a) * f;
+                }
+
+                visible: flying
+                width: mix(restSize, target.width)
+                height: width
+                // Distance from the shape's right edge to the cover's left.
+                x: artBlob.width - mix(stage.base - Theme.u(2.5), Theme.u(309) - target.x)
+                y: mix(Theme.u(2.5), target.y)
+                radius: mix(restSize / 2, mediaCard.item?.artCornerRadius ?? Theme.u(8))
+                color: Qt.rgba(mix(Theme.surface.r, 0x1c / 255), mix(Theme.surface.g, 0x21 / 255), mix(Theme.surface.b, 0x1d / 255), 1)
+                // Squashes with the closing bounce, as the bubble's cover does.
+                transform: Scale {
+                    origin.x: artBlob.width - coverFlight.x
+                    origin.y: -coverFlight.y
+                    xScale: artBlob.squash
+                    yScale: artBlob.squash
+                }
+
+                Icon {
+                    anchors.centerIn: parent
+                    visible: flightArt.status !== Image.Ready || flightArt.opacity < 1
+                    text: Icons.music
+                    size: coverFlight.mix(Theme.u(10), Theme.u(30))
+                    color: Theme.textDim
+                }
+                Image {
+                    id: flightArt
+                    anchors.fill: parent
+                    source: Media.artUrl
+                    // The bubble may be set to show no art; the card always
+                    // does, so the art comes in on the way.
+                    opacity: Config.island.showAlbumArt ? 1 : Math.min(1, coverFlight.f)
+                    fillMode: Image.PreserveAspectCrop
+                    sourceSize.width: Theme.u(160)
+                    sourceSize.height: Theme.u(160)
+                    asynchronous: true
+                }
             }
         }
 
@@ -484,9 +562,19 @@ PanelWindow {
             }
 
             expanded: win.pillMode !== "idle"
+            // The last view shown, kept through the closing: the open size
+            // comes from it behind `sizeOpen`, so the pill only shrinks once
+            // the closing curve is in place (see Blob).
+            property Item shownView: null
+            onViewChanged: {
+                if (view)
+                    shownView = view;
+            }
+            restWidth: hovered ? Theme.u(85) : Theme.u(73)
+            restHeight: hovered ? Theme.u(30) : stage.base
             maxRadius: ["notification", "osd", "workspaces"].includes(win.pillMode) ? Math.min(height / 2, Theme.u(26)) : Theme.u(22)
-            width: view ? view.targetWidth : hovered ? Theme.u(85) : Theme.u(73)
-            height: view ? view.targetHeight : hovered ? Theme.u(30) : stage.base
+            width: sizeOpen && (view ?? shownView) ? (view ?? shownView).targetWidth : restWidth
+            height: sizeOpen && (view ?? shownView) ? (view ?? shownView).targetHeight : restHeight
             x: (stage.width - width) / 2
             // Hovered, the pill grows and drops a little, as if pressed down.
             // The drop is held while something opened from the pill is showing:
@@ -567,7 +655,9 @@ PanelWindow {
                 y: (pill.height - height) / 2 * (1 - t) + Theme.u(11) * t
                 text: win.timeText
                 size: t < 0.001 ? Theme.u(10.5) : Theme.u(15.5)
-                scale: shown / size
+                // Times the closing bounce's squash, about its centre — the
+                // pill's centre, as the label is centred in it.
+                scale: shown / size * pill.squash
                 // Regular at rest, semi-bold as the peek's headline. With a
                 // variable font the weight follows the peek continuously, so
                 // it thickens as it grows and thins as it shrinks; a font
@@ -580,7 +670,10 @@ PanelWindow {
                 z: 1
                 opacity: {
                     const others = Math.max(calendarView.t, launcherView.t, powerView.t, polkitView.t, notifView.t, osdView.t, wallpaperView.t, themeView.t, workspacesView.t);
-                    return 1 - pill.smooth(others / 0.35);
+                    // Closing, it comes in earlier, like the bubbles' faces,
+                    // so it's showing when the pill squashes past its
+                    // resting size and squashes with it.
+                    return pill.expanded ? 1 - pill.smooth(others / 0.35) : 1 - pill.smooth((others - 0.15) / 0.3);
                 }
                 visible: opacity > 0
             }
@@ -724,10 +817,26 @@ PanelWindow {
         // ── Status bubble → control center ───────────────────────────
         Blob {
             id: statusBlob
+            restSize: stage.base
 
             expanded: win.ccOpen
-            width: expanded ? (controlCenter.item?.implicitWidth ?? stage.base) : stage.base
-            height: expanded ? (controlCenter.item?.implicitHeight ?? stage.base) : stage.base
+            // The control center's size, worked out from the layout settings
+            // the same way ControlCenter and ControlGrid do, so the opening
+            // knows its target from the first frame — the control center
+            // itself only exists once it's open, and waiting for it made the
+            // animation start towards the bubble's own size and re-aim
+            // mid-flight. A page taller than the grid still comes from the
+            // control center, once it's there.
+            readonly property real ccWidth: {
+                const cols = Config.controlCenter.columns;
+                return cols * Theme.u(46) + (cols - 1) * Theme.u(9) + Theme.u(11) * 2;
+            }
+            readonly property real ccGridHeight: {
+                const rows = Config.controlCenter.items.reduce((m, it) => Math.max(m, it.y + it.h), 0);
+                return (rows > 0 ? rows * Theme.u(46) + (rows - 1) * Theme.u(9) : Theme.u(46)) + Theme.u(11) * 2;
+            }
+            width: sizeOpen ? ccWidth : stage.base
+            height: sizeOpen ? Math.max(ccGridHeight, controlCenter.item?.implicitHeight ?? 0) : stage.base
             x: pill.x + pill.width + stage.gap
             y: stage.margin
             opacity: win.barMode ? Math.min(1, progress * 4) : 1
@@ -781,6 +890,10 @@ PanelWindow {
             Item {
                 width: stage.base
                 height: stage.base
+                // Squashes with the closing bounce, about the bubble's top
+                // left corner, which stays put as the shape shrinks.
+                transformOrigin: Item.TopLeft
+                scale: statusBlob.squash
                 opacity: statusBlob.idleOpacity
                 visible: opacity > 0
 
