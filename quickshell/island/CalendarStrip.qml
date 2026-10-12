@@ -102,7 +102,7 @@ Item {
                 text: day.isCenter ? root.names[day.date.getDay()] : root.letters[day.date.getDay()]
                 size: day.isCenter ? Theme.u(7.5) : Theme.u(7)
                 font.weight: day.isCenter ? Font.Bold : Font.Medium
-                color: day.isWeekend && Config.clock.highlightWeekends ? Theme.weekend : day.isCenter ? Theme.text : Theme.textDim
+                color: day.isToday ? Theme.text : day.isWeekend && Config.clock.highlightWeekends ? Theme.weekend : day.isCenter ? Theme.text : Theme.textDim
             }
 
             Label {
@@ -113,7 +113,7 @@ Item {
                 text: day.date.getDate()
                 size: day.isCenter ? Theme.u(13) : Theme.u(10)
                 font.weight: day.isCenter ? Font.DemiBold : Font.Medium
-                color: day.isToday ? Theme.accent : day.isWeekend && Config.clock.highlightWeekends ? Theme.weekend : day.isCenter ? Theme.text : Theme.textDim
+                color: day.isToday ? Theme.text : day.isWeekend && Config.clock.highlightWeekends ? Theme.weekend : day.isCenter ? Theme.text : Theme.textDim
             }
         }
     }

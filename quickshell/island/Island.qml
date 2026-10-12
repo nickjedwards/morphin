@@ -248,7 +248,7 @@ PanelWindow {
 
         // Measured off the recording: the pill is ~2.8 bubbles wide with a
         // ~10u gap. Hovering it widens the gap so the bubbles get shoved out.
-        property real gap: pillWide ? Theme.u(14) : pill.hovered ? Theme.u(12) : Theme.u(10)
+        property real gap: pillWide ? Theme.u(14) : pill.hovered ? Theme.u(13) : Theme.u(10)
         Behavior on gap {
             Anim {
                 curve: pill.curve
@@ -346,8 +346,8 @@ PanelWindow {
                     yScale: xScale
                 },
                 Translate {
-                    x: -1 * Theme.u(3.25) * artBlob.pushT
-                    y: Theme.u(3.5) * artBlob.pushT
+                    x: -1 * Theme.u(5) * artBlob.pushT
+                    y: Theme.u(5.5) * artBlob.pushT
                 }
             ]
 
@@ -586,7 +586,7 @@ PanelWindow {
             readonly property bool panelMode: ["peek", "calendar", "launcher", "power", "polkit", "wallpapers", "themes"].includes(win.pillMode)
             readonly property bool dropped: !win.barMode && (hovered || panelMode)
 
-            y: stage.margin + (dropped ? Theme.u(4) : 0)
+            y: stage.margin + (dropped ? Theme.u(6) : 0)
             Behavior on y {
                 Anim {
                     curve: pill.dropped ? "hover" : "close"
@@ -616,7 +616,15 @@ PanelWindow {
                     win.peek = false;
                     Workspaces.step(win.screenName, wheel.angleDelta.y > 0 ? -1 : 1);
                 }
-                onClicked: {
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    // Right click waves the notification showing away: on to
+                    // the next one waiting, and it stays in the list.
+                    if (mouse.button === Qt.RightButton) {
+                        if (win.pillMode === "notification")
+                            win.nextPopup();
+                        return;
+                    }
                     switch (win.pillMode) {
                     case "notification":
                         for (const n of win.popupQueue)
@@ -871,8 +879,8 @@ PanelWindow {
                     yScale: xScale
                 },
                 Translate {
-                    x: 1 * Theme.u(3.25) * statusBlob.pushT
-                    y: Theme.u(3.5) * statusBlob.pushT
+                    x: 1 * Theme.u(5) * statusBlob.pushT
+                    y: Theme.u(5.5) * statusBlob.pushT
                 }
             ]
 
