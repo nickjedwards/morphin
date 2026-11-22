@@ -173,6 +173,7 @@ All commands take the form `morpher dinozord <target> <function> [argument]`.
 | `media` | `playPause` · `next` · `previous` · `cycle` · `cycleBack` · `players` (lists them; `*` marks the selected one) |
 | `power-mode` | `set <saver\|balanced\|performance>` · `cycle` · `get` · `page` |
 | `gamemode` | `toggle` |
+| `awake` | `toggle` · `get` (stay awake: holds an idle inhibitor, so the session never idles, dims or locks itself) |
 
 list everything live:
 

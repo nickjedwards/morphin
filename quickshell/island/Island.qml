@@ -105,6 +105,14 @@ PanelWindow {
         Region { item: bar }
     }
 
+    // Stay awake. Every screen's island holds one: an inhibitor only counts
+    // while its surface is mapped, and the island is the one surface that
+    // always is.
+    IdleInhibitor {
+        window: win
+        enabled: Session.stayAwake
+    }
+
     HyprlandFocusGrab {
         windows: [win]
         active: win.anyOpen

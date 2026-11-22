@@ -24,6 +24,7 @@ Item {
             case "bluetooth":
             case "focus":
             case "gamemode":
+            case "awake":
             case "nightlight":
                 return toggleComponent;
             case "lock":
@@ -71,6 +72,8 @@ Item {
                     return Notifs.focus ? "On" : "Off";
                 case "gamemode":
                     return Session.gameMode ? "On" : "Off";
+                case "awake":
+                    return Session.stayAwake ? "On" : "Off";
                 case "nightlight":
                     return !NightLight.available ? "Needs hyprsunset" : NightLight.enabled ? `${NightLight.temperature} K` : "Off";
                 }
@@ -86,6 +89,8 @@ Item {
                     return Notifs.focus;
                 case "gamemode":
                     return Session.gameMode;
+                case "awake":
+                    return Session.stayAwake;
                 case "nightlight":
                     return NightLight.enabled;
                 }
@@ -104,6 +109,9 @@ Item {
                     break;
                 case "gamemode":
                     Session.toggleGameMode();
+                    break;
+                case "awake":
+                    Session.toggleStayAwake();
                     break;
                 case "nightlight":
                     NightLight.toggle();

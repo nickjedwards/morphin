@@ -19,6 +19,7 @@ Singleton {
     readonly property string bluetoothOff: g(0xf00b2)
     readonly property string focus: g(0xf0377)
     readonly property string gameMode: g(0xf0297)
+    readonly property string coffee: g(0xf0176)
     readonly property string lock: g(0xf0341)
     readonly property string sleep: g(0xf0f65)
     readonly property string nightLight: g(0xf0f65)

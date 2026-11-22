@@ -185,6 +185,16 @@ ShellRoot {
     }
 
     IpcHandler {
+        target: "awake"
+        function toggle(): void {
+            Session.toggleStayAwake();
+        }
+        function get(): bool {
+            return Session.stayAwake;
+        }
+    }
+
+    IpcHandler {
         target: "media"
         function playPause(): void {
             Media.togglePlaying();

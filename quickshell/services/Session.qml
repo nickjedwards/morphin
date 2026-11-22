@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 import qs.common
 
-// Power and session actions, plus game mode.
+// Power and session actions, plus game mode and staying awake.
 Singleton {
     id: root
 
@@ -17,6 +17,17 @@ Singleton {
     function toggleGameMode(): void {
         root.gameMode = !root.gameMode;
         Quickshell.execDetached(root.gameMode ? ["hyprctl", "eval", root.gameModeLua] : ["hyprctl", "reload"]);
+    }
+
+    // Stay awake: the island holds an idle inhibitor while this is on, so
+    // hypridle (or anything else on ext-idle-notify) never sees the session
+    // go idle — no dimming, locking or screen-off. Deliberately not
+    // remembered: left on by accident, it would quietly keep the machine
+    // from ever locking itself again.
+    property bool stayAwake: false
+
+    function toggleStayAwake(): void {
+        root.stayAwake = !root.stayAwake;
     }
 
     // The shell has no lock screen of its own: it asks the session to lock,

@@ -29,6 +29,7 @@ Singleton {
             bluetooth: { label: "Bluetooth", icon: Icons.bluetooth, sizes: toggleSizes(), size: [3, 1], page: "bluetooth" },
             focus: { label: "Focus", icon: Icons.focus, sizes: toggleSizes(), size: [3, 1] },
             gamemode: { label: "Game Mode", icon: Icons.gameMode, sizes: toggleSizes(), size: [3, 1] },
+            awake: { label: "Stay Awake", icon: Icons.coffee, sizes: toggleSizes(), size: [3, 1] },
             nightlight: { label: "Night Light", icon: Icons.nightLight, sizes: toggleSizes(), size: [1, 1] },
             lock: { label: "Lock", icon: Icons.lock, sizes: [[1, 1], [2, 1], [3, 1]], size: [1, 1] },
             power: { label: "Power", icon: Icons.power, sizes: [[1, 1], [2, 1], [3, 1]], size: [1, 1] },
@@ -40,7 +41,7 @@ Singleton {
             nowplaying: { label: "Now Playing", icon: Icons.music, sizes: range(3, 9).map(w => [w, 2]), size: [3, 2] }
         })
 
-    readonly property var order: ["wifi", "bluetooth", "focus", "gamemode", "nightlight", "lock", "power", "audio", "brightness", "system", "powermode", "notifications", "nowplaying"]
+    readonly property var order: ["wifi", "bluetooth", "focus", "gamemode", "awake", "nightlight", "lock", "power", "audio", "brightness", "system", "powermode", "notifications", "nowplaying"]
 
     function info(type: string): var {
         return root.types[type] ?? { label: type, icon: Icons.app, sizes: [[1, 1]], size: [1, 1] };
